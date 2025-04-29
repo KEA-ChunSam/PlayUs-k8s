@@ -1,0 +1,61 @@
+name: '⚙️ chore'
+description: '모듈, 빌드, CI/CD 이슈 템플릿'
+title : 'Chore/이슈를 작성해주세요'
+labels : [⚙️ chore]
+assignees : ['예찬', '유경']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 📝 제목 작성 규칙
+        제목은 반드시 `Chore/ ~` 형식으로 작성해주세요.  
+        예: `Chore/멀티모듈 SW 아키텍처 설계`
+
+  - type : input
+    id : parentKey
+    attributes:
+      label: '상위 작업 (Epic, 보라색 번개) Ticket Number'
+      description: '상위 직업 (Epic, 보라색 아이콘) 의 Ticket Number를 기입해주세요, 노션에서도 확인 가능'
+      value: CS-00
+    validations:
+      required: true
+
+  - type: input
+    id: description
+    attributes:
+      label: '이슈 내용 (Description)'
+      description: '이슈 대해 간략히 요약해주세요'
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: '담당자 이름'
+      description: '이슈를 맡는 담당자에 대해 이야기해주세요.'
+
+  - type : textarea
+    id : details
+    attributes:
+      label : '상세 내용 (Details)'
+      description: '이슈 대해 자세히 설명해주세요'
+      value: |
+        - About Details
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: '체크리스트 (Tasks)'
+      description: '해당 이슈 대해 필요한 작업목록을 작성해주세요'
+      value: |
+        - [ ] Tasks1
+        - [ ] Tasks2
+
+  - type : textarea
+    id : references
+    attributes:
+      label : '참조 (References)'
+      description: '해당 이슈 관련된 레퍼런스 참조해주세요'
+      value : |
+        - Reference1
