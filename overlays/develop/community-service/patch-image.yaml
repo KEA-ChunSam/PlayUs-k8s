@@ -3,14 +3,7 @@ kind: Deployment
 metadata:
   name: community-service
 spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: community-service
   template:
-    metadata:
-      labels:
-        app: community-service
     spec:
       containers:
         - name: community-service
