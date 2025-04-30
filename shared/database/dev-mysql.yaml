@@ -11,7 +11,7 @@ spec:
 ---
 apiVersion: v1
 kind: Endpoints
-metadata:g
+metadata:
   name: dev-mysql
   namespace: user-service
 subsets:
