@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: community-service
+  labels:
+    app: community-service
+spec:
+  selector:
+    app: community-service
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP  # 클러스터 내부에서만 접근 가능
