@@ -8,6 +8,14 @@ resources:
 patches:
   - path: patch-image.yaml
   - path: endpoint-dev.yaml
-  - path: user-db-secret.yaml
+
+secretGenerator:
+  - name: user-db-secret
+    envs:
+      - ../../../secrets/user-db-secret.env
+    namespace: user-service
+
+generatorOptions:
+  disableNameSuffixHash: true
 
 namePrefix: dev-
