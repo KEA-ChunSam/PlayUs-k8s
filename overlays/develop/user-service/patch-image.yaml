@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: user-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: user-service
+          image: yukyung0/playus-user-service:dev
