@@ -3,16 +3,14 @@ kind: Kustomization
 
 resources:
   - ../../../base/user-service
-  - ../../../shared/database
 
 patches:
   - path: patch-image.yaml
-  - path: endpoint-dev.yaml
 
 secretGenerator:
   - name: user-db-secret
     envs:
-      - ../../../secrets/user-db-secret.env
+      - .env.secret
     namespace: user-service
 
 generatorOptions:
