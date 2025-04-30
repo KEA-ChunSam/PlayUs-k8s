@@ -1,2 +1,2 @@
 # Kubernetes secret files
-**/secrets/*.yaml
+secrets/

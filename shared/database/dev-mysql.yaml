@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: onpremise-mysql
-  namespace: user-service
+  name: dev-mysql
+  namespace: user-service  # 필요 시 Kustomize patch로 네임스페이스 변경
 spec:
   ports:
     - port: 3306
@@ -11,10 +11,10 @@ spec:
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: onpremise-mysql
+  name: dev-mysql
   namespace: user-service
 subsets:
   - addresses:
-      - ip: 129.154.50.74  # 온프레미스 DB 서버 IP
+      - ip: 129.154.50.74
     ports:
       - port: 3306

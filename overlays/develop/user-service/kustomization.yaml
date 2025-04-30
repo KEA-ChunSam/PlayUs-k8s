@@ -3,8 +3,11 @@ kind: Kustomization
 
 resources:
   - ../../../base/user-service
+  - ../../../shared/database
 
 patches:
   - path: patch-image.yaml
+  - path: endpoint-dev.yaml
+  - path: user-db-secret.yaml
 
 namePrefix: dev-

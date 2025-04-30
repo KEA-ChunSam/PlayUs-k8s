@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: dev-mysql
+  namespace: user-service
+subsets:
+  - addresses:
+      - ip: 129.154.50.74
+    ports:
+      - port: 3306
