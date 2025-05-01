@@ -7,4 +7,13 @@ resources:
 patches:
   - path: patch-image.yaml
 
+secretGenerator:
+  - name: match-db-secret
+    envs:
+      - .env.secret
+    namespace: match-service
+
+generatorOptions:
+  disableNameSuffixHash: true
+
 namePrefix: dev-

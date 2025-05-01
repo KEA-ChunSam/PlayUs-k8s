@@ -7,4 +7,13 @@ resources:
 patches:
   - path: patch-image.yaml
 
+secretGenerator:
+  - name: twp-db-secret
+    envs:
+      - .env.secret
+    namespace: twp-service
+
+generatorOptions:
+  disableNameSuffixHash: true
+
 namePrefix: dev-
