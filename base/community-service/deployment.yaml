@@ -18,6 +18,7 @@ spec:
           image: yukyung0/playus-community-service:latest
           ports:
             - containerPort: 8080
+              name: http
           env:
             - name: SPRING_DATASOURCE_URL
               valueFrom:
