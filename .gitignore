@@ -1,0 +1,2 @@
+# Kubernetes secret files
+*.env.secret
