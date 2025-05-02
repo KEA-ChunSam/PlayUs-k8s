@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: community-service
-  namespace: community-service
+  name: search-service
+  namespace: search-service
   labels:
-    app: community-service
+    app: search-service
 spec:
   selector:
-    app: community-service
+    app: search-service
   ports:
     - port: 80
       targetPort: 8080

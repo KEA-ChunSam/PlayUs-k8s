@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: community-service
-  namespace: community-service
+  name: twp-service
+  namespace: twp-service
   labels:
-    app: community-service
+    app: twp-service
 spec:
   selector:
-    app: community-service
+    app: twp-service
   ports:
     - port: 80
       targetPort: 8080
