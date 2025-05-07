@@ -3,15 +3,16 @@ kind: Kustomization
 
 resources:
   - ../../../base/user-service
+  - sealed-secret.yaml
 
 patches:
   - path: patch-image.yaml
 
-secretGenerator:
-  - name: user-db-secret
-    envs:
-      - .env.secret
-    namespace: user-service
+#secretGenerator:
+#  - name: user-db-secret
+#    envs:
+#      - .env.secret
+#    namespace: user-service
 
 generatorOptions:
   disableNameSuffixHash: true
