@@ -1,4 +1,3 @@
 # Kubernetes secret files
-*.env.secret
-
-!overlays/develop/user-service/.env.secret
+**/.env.secret
+**/secret.yaml
