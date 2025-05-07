@@ -7,6 +7,14 @@ resources:
 
 patches:
   - path: patch-image.yaml
+  - target:
+      kind: SealedSecret
+      name: user-db-secret
+    patch: |-
+        apiVersion: bitnami.com/v1alpha1
+        kind: SealedSecret
+        metadata:
+          name: user-db-secret  # prefix 무효화
 
 #secretGenerator:
 #  - name: user-db-secret
