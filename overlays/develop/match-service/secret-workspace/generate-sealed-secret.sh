@@ -5,8 +5,8 @@
 #!/bin/bash
 
 # === Configuration ===
-SECRET_NAME="dev-match-db-secret"
-NAMESPACE="match-service"
+SECRET_NAME="match-db-secret"
+NAMESPACE="dev-match-service"
 ENV_FILE=".env.secret"
 SECRET_FILE="secret.yaml"
 SEALED_SECRET_FILE="../sealed-secret/sealed-secret.yaml"

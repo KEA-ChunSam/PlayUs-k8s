@@ -1,0 +1,17 @@
+# kubectl apply -k argocd/ -n argocd
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - dev-community-db-secret-application.yaml
+  - dev-community-service-application.yaml
+  - dev-infra-db-application.yaml
+  - dev-match-db-secret-application.yaml
+  - dev-match-service-application.yaml
+  - dev-search-db-secret-application.yaml
+  - dev-search-service-application.yaml
+  - dev-twp-db-secret-application.yaml
+  - dev-twp-service-application.yaml
+  - dev-user-db-secret-application.yaml
+  - dev-user-service-application.yaml

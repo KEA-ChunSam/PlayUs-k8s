@@ -3,8 +3,8 @@
 # .\generate-sealed-secret.ps1
 
 # === Configuration ===
-$SecretName = "dev-user-db-secret"
-$Namespace = "user-service"
+$SecretName = "user-db-secret"
+$Namespace = "dev-user-service"
 $EnvFile = ".env.secret"
 $SecretFile = "secret.yaml"
 $SealedSecretFile = "../sealed-secret/sealed-secret.yaml"

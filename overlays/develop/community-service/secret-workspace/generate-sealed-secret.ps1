@@ -3,8 +3,8 @@
 # .\generate-sealed-secret.ps1
 
 # === Configuration ===
-$SecretName = "dev-community-db-secret"
-$Namespace = "community-service"
+$SecretName = "community-db-secret"
+$Namespace = "dev-community-service"
 $EnvFile = ".env.secret"
 $SecretFile = "secret.yaml"
 $SealedSecretFile = "../sealed-secret/sealed-secret.yaml"
