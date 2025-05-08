@@ -9,13 +9,13 @@ SECRET_NAME="search-db-secret"
 NAMESPACE="dev-search-service"
 ENV_FILE=".env.secret"
 SECRET_FILE="secret.yaml"
-SEALED_SECRET_FILE="../sealed-secret/sealed-secret.yaml"
+SEALED_SECRET_FILE="../sealed-secret.yaml"
 CONTROLLER_NAMESPACE="kube-system"
 CONTROLLER_NAME="sealed-secrets-controller"
 
 echo "======================================="
 echo "Sealed Secret Generation Script (Mac/Linux)"
-echo "Location: overlays/develop/search-service/sealed-secret/"
+echo "Location: overlays/develop/search-service/"
 echo "======================================="
 
 # Check if the .env.secret file exists

@@ -7,13 +7,13 @@ $SecretName = "twp-db-secret"
 $Namespace = "dev-twp-service"
 $EnvFile = ".env.secret"
 $SecretFile = "secret.yaml"
-$SealedSecretFile = "../sealed-secret/sealed-secret.yaml"
+$SealedSecretFile = "../sealed-secret.yaml"
 $ControllerNamespace = "kube-system"
 $ControllerName = "sealed-secrets-controller"
 
 Write-Output "======================================="
 Write-Output "Sealed Secret Generation Script (Windows PowerShell)"
-Write-Output "Location: overlays/develop/twp-service/sealed-secret/"
+Write-Output "Location: overlays/develop/twp-service/"
 Write-Output "======================================="
 
 # Check if the .env.secret file exists
