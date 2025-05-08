@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - sealed-secret.yaml
 
-namespace: search-service
+namespace: dev-search-service

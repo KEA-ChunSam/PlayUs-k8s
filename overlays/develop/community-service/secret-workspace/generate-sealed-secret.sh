@@ -5,8 +5,8 @@
 #!/bin/bash
 
 # === Configuration ===
-SECRET_NAME="dev-community-db-secret"
-NAMESPACE="community-service"
+SECRET_NAME="community-db-secret"
+NAMESPACE="dev-community-service"
 ENV_FILE=".env.secret"
 SECRET_FILE="secret.yaml"
 SEALED_SECRET_FILE="../sealed-secret/sealed-secret.yaml"

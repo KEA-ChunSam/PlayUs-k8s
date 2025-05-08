@@ -5,8 +5,8 @@
 #!/bin/bash
 
 # === Configuration ===
-SECRET_NAME="dev-twp-db-secret"
-NAMESPACE="twp-service"
+SECRET_NAME="twp-db-secret"
+NAMESPACE="dev-twp-service"
 ENV_FILE=".env.secret"
 SECRET_FILE="secret.yaml"
 SEALED_SECRET_FILE="../sealed-secret/sealed-secret.yaml"

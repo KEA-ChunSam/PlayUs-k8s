@@ -7,7 +7,7 @@ resources:
 patches:
   - path: patch-image.yaml
 
+namespace: dev-match-service
+
 generatorOptions:
   disableNameSuffixHash: true
-
-namePrefix: dev-

@@ -3,8 +3,8 @@
 # .\generate-sealed-secret.ps1
 
 # === Configuration ===
-$SecretName = "dev-twp-db-secret"
-$Namespace = "twp-service"
+$SecretName = "twp-db-secret"
+$Namespace = "dev-twp-service"
 $EnvFile = ".env.secret"
 $SecretFile = "secret.yaml"
 $SealedSecretFile = "../sealed-secret/sealed-secret.yaml"

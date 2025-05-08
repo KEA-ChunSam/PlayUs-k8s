@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - sealed-secret.yaml
 
-namespace: twp-service
+namespace: dev-twp-service

@@ -1,9 +1,0 @@
-apiVersion: builtin
-kind: NameReference
-metadata:
-  name: not-important
-nameReference:
-  - kind: Secret
-    fieldSpecs:
-      - kind: Deployment
-        path: spec/template/spec/containers/env/valueFrom/secretKeyRef/name

@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: community-service
-  namespace: community-service
 spec:
   replicas: 2
   selector:

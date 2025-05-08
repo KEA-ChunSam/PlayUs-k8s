@@ -5,8 +5,8 @@
 #!/bin/bash
 
 # === Configuration ===
-SECRET_NAME="dev-user-db-secret"
-NAMESPACE="user-service"
+SECRET_NAME="user-db-secret"
+NAMESPACE="dev-user-service"
 ENV_FILE=".env.secret"
 SECRET_FILE="secret.yaml"
 SEALED_SECRET_FILE="../sealed-secret/sealed-secret.yaml"

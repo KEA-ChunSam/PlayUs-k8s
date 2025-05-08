@@ -1,8 +1,7 @@
 # infra 네임스페이스의 DB Service 및 Endpoints를 관리하는 ArgoCD 애플리케이션 설정 파일입니다.
 # shared/database 경로에 위치한 파일을 기준으로 배포됩니다.
 
-# kubectl로 바로 배포
-# kubectl apply -f infra-mysql-application.yaml -n argocd
+# kubectl apply -f dev-infra-db-application.yaml -n argocd
 
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -17,7 +16,7 @@ spec:
     path: shared/database
   destination:
     server: https://kubernetes.default.svc
-    namespace: infra  # dev-mysql 리소스가 배포될 네임스페이스
+    namespace: dev-infra  # dev-mysql 리소스가 배포될 네임스페이스
   syncPolicy:
     automated:
       prune: true     # Git에 없는 리소스는 자동으로 삭제

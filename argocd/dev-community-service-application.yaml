@@ -1,20 +1,20 @@
-# user-service 네임스페이스의 서비스 리소스를 관리하는 ArgoCD 애플리케이션 설정입니다.
-# kubectl apply -f dev-user-service-application.yaml -n argocd
+# dev 환경의 community-service 리소스를 관리하는 ArgoCD 애플리케이션 설정입니다.
+# kubectl apply -f dev-community-service-application.yaml -n argocd
 
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dev-user-service
+  name: dev-community-service
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
     targetRevision: HEAD
-    path: overlays/develop/user-service
+    path: overlays/develop/community-service
   destination:
     server: https://kubernetes.default.svc
-    namespace: dev-user-service
+    namespace: dev-community-service
   syncPolicy:
     automated:
       prune: true

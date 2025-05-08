@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: match-service
-  namespace: match-service
 spec:
   replicas: 2
   selector:
