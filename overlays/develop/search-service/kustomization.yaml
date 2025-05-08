@@ -7,12 +7,6 @@ resources:
 patches:
   - path: patch-image.yaml
 
-secretGenerator:
-  - name: search-db-secret
-    envs:
-      - .env.secret
-    namespace: search-service
-
 generatorOptions:
   disableNameSuffixHash: true
 

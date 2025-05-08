@@ -5,8 +5,8 @@
 #!/bin/bash
 
 # === Configuration ===
-SECRET_NAME="dev-user-db-secret"
-NAMESPACE="user-service"
+SECRET_NAME="dev-twp-db-secret"
+NAMESPACE="twp-service"
 ENV_FILE=".env.secret"
 SECRET_FILE="secret.yaml"
 SEALED_SECRET_FILE="../sealed-secret/sealed-secret.yaml"
@@ -15,7 +15,7 @@ CONTROLLER_NAME="sealed-secrets-controller"
 
 echo "======================================="
 echo "Sealed Secret Generation Script (Mac/Linux)"
-echo "Location: overlays/develop/user-service/sealed-secret/"
+echo "Location: overlays/develop/twp-service/sealed-secret/"
 echo "======================================="
 
 # Check if the .env.secret file exists

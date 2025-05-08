@@ -7,12 +7,6 @@ resources:
 patches:
   - path: patch-image.yaml
 
-secretGenerator:
-  - name: community-db-secret
-    envs:
-      - .env.secret
-    namespace: community-service
-
 generatorOptions:
   disableNameSuffixHash: true
 
