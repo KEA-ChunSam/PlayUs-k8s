@@ -11,3 +11,6 @@ generatorOptions:
   disableNameSuffixHash: true
 
 namePrefix: dev-
+
+configurations:
+  - name-transformer.yaml
