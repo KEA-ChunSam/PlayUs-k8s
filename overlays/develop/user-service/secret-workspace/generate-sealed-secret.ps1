@@ -7,13 +7,13 @@ $SecretName = "user-db-secret"
 $Namespace = "dev-user-service"
 $EnvFile = ".env.secret"
 $SecretFile = "secret.yaml"
-$SealedSecretFile = "../sealed-secret/sealed-secret.yaml"
+$SealedSecretFile = "../sealed-secret.yaml"
 $ControllerNamespace = "kube-system"
 $ControllerName = "sealed-secrets-controller"
 
 Write-Output "======================================="
 Write-Output "Sealed Secret Generation Script (Windows PowerShell)"
-Write-Output "Location: overlays/develop/user-service/sealed-secret/"
+Write-Output "Location: overlays/develop/user-service/"
 Write-Output "======================================="
 
 # Check if the .env.secret file exists
