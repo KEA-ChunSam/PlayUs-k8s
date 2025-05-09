@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: redis-cluster-init
+  namespace: dev-infra
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  template:
+    spec:
+      containers:
+        - name: redis-cluster-init
+          image: redis:7.0-alpine
+          command: ["redis-cli", "--cluster", "create",
+                    "dev-redis-token-0.dev-redis-token.dev-infra.svc.cluster.local:6379",
+                    "dev-redis-token-1.dev-redis-token.dev-infra.svc.cluster.local:6379",
+                    "dev-redis-token-2.dev-redis-token.dev-infra.svc.cluster.local:6379",
+                    "--cluster-replicas", "0"]
+      restartPolicy: OnFailure
