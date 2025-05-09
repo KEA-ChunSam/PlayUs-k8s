@@ -7,6 +7,7 @@ resources:
 
 patches:
   - path: patch-image.yaml
+  - path: patch-env.yaml
 
 namespace: dev-twp-service
 
