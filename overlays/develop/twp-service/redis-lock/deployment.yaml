@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-redis-lock
+  namespace: dev-twp-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dev-redis-lock
+  template:
+    metadata:
+      labels:
+        app: dev-redis-lock
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.2
+          ports:
+            - containerPort: 6379

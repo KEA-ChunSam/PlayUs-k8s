@@ -7,6 +7,9 @@ spec:
     spec:
       containers:
         - name: twp-service
+          envFrom:
+            - secretRef:
+                name: twp-db-secret
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
