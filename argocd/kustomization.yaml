@@ -10,3 +10,4 @@ resources:
   - dev-twp-service-application.yaml
   - dev-user-service-application.yaml
   - dev-infra-db-application.yaml
+  - dev-monitoring-application.yaml
