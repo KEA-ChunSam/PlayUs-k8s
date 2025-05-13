@@ -36,6 +36,6 @@ Get-Content $SecretFile | kubeseal `
     --controller-name $ControllerName `
     --format yaml | Out-File -Encoding utf8 $SealedSecretFile
 
-# 3️⃣ Done
+# Done
 Write-Output "[3/3] Done! Output file: $SealedSecretFile"
 Write-Output "Sealed Secret has been successfully created!"
