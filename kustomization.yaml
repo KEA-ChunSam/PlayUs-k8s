@@ -9,3 +9,4 @@ resources:
   - overlays/develop/search-service
   - overlays/develop/twp-service
   - shared/database
+  - monitoring/dev-prometheus
