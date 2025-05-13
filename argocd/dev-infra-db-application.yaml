@@ -16,7 +16,7 @@ spec:
     path: shared/database
   destination:
     server: https://kubernetes.default.svc
-    namespace: dev-infra  # dev-mysql 리소스가 배포될 네임스페이스
+    namespace: dev-infra  # 리소스가 배포될 네임스페이스
   syncPolicy:
     automated:
       prune: true     # Git에 없는 리소스는 자동으로 삭제
