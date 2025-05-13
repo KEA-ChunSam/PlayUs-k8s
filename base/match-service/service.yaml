@@ -4,6 +4,10 @@ metadata:
   name: match-service
   labels:
     app: match-service
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/actuator/prometheus"  # http://<pod-ip>:8080/actuator/prometheus
 spec:
   selector:
     app: match-service
