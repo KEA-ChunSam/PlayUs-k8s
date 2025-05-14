@@ -33,4 +33,4 @@ data:
       filesystem:
         directory: /loki/chunks
     limits_config:
-      enforce_metric_name: true  
+      enforce_metric_name: false
