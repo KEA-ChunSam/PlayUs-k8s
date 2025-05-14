@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
     targetRevision: HEAD
-    path: monitoring/dev-prometheus
+    path: observability
   destination:
     server: https://kubernetes.default.svc
     namespace: dev-monitoring
