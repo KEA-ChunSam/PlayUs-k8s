@@ -5,7 +5,9 @@ namespace: dev-monitoring
 
 resources:
   - ../../../base/monitoring
-  - patch-prometheus-config.yaml
-  - patch-prometheus-config.yaml
-  - patch-promtail-config.yaml
-  - patch-rbac.yaml
+
+patches:
+  - path: patch-prometheus-config.yaml
+  - path: patch-prometheus-rbac.yaml
+  - path: patch-promtail-config.yaml
+  - path: patch-rbac.yaml
