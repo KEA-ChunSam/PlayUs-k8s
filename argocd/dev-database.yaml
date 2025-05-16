@@ -18,7 +18,7 @@ spec:
           - name: dev-s3
             path: shared/database/s3
           - name: dev-redis-token
-            path: shared/database/dev-redis-token
+            path: shared/database/redis-token
   template:
     metadata:
       name: '{{name}}'
