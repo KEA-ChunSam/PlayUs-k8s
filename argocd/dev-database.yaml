@@ -8,15 +8,15 @@ spec:
     - list:
         elements:
           - name: dev-mysql
-            path: shared/database
+            path: shared/database/mysql
           - name: dev-mongo-chat
-            path: shared/database
+            path: shared/database/mongo-chat
           - name: dev-mongo-read
-            path: shared/database
+            path: shared/database/mongo-read
           - name: dev-elasticsearch
-            path: shared/database
+            path: shared/database/elasticsearch
           - name: dev-s3
-            path: shared/database
+            path: shared/database/s3
           - name: dev-redis-token
             path: shared/database/dev-redis-token
   template:

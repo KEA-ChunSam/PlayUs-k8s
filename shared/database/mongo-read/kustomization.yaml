@@ -4,9 +4,4 @@ kind: Kustomization
 namespace: dev-db
 
 resources:
-  - dev-redis-token
-  - dev-elasticsearch.yaml
-  - dev-mongo-chat.yaml
   - dev-mongo-read.yaml
-  - dev-mysql.yaml
-  - dev-s3.yaml
