@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: dev-db
 
 resources:
-  - redis-cluster-init-job.yaml
-  - redis-configmap.yaml
-  - redis-service.yaml
-  - redis-stateful.yaml
+  - dev-redis-cluster-init-job.yaml
+  - dev-redis-configmap.yaml
+  - dev-redis-service.yaml
+  - dev-redis-stateful.yaml
