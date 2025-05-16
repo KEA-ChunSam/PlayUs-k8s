@@ -14,7 +14,7 @@ data:
         relabel_configs:
           - source_labels: [__meta_kubernetes_namespace]
             action: keep
-            regex: dev-.*   # dev-로 시작하는 네임스페이스만 수집
+            regex: .* 
           - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
             action: keep
             regex: true

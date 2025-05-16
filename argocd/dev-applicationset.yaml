@@ -19,10 +19,8 @@ spec:
             path: overlays/develop/match-service
           - name: dev-twp-service
             path: overlays/develop/twp-service
-          - name: dev-logging
-            path: observability/dev-monitoring/loki
           - name: dev-monitoring
-            path: observability/dev-monitoring/prometheus
+            path: overlays/develop/monitoring
   template:
     metadata:
       name: '{{name}}'

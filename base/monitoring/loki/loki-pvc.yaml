@@ -1,3 +1,4 @@
+# dev/prod 스토리지 용량/클래스가 다를 경우 overlay patch 고려
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

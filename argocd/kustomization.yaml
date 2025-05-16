@@ -6,3 +6,4 @@ kind: Kustomization
 resources:
   - dev-namespaces.yaml
   - dev-applicationset.yaml
+  - dev-database.yaml
