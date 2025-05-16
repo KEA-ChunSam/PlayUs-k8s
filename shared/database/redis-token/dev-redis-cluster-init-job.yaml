@@ -12,8 +12,8 @@ spec:
         - name: redis-cluster-init
           image: redis:7.0-alpine
           command: ["redis-cli", "--cluster", "create",
-                    "dev-redis-token-0.dev-redis-token.dev-infra.svc.cluster.local:6379",
-                    "dev-redis-token-1.dev-redis-token.dev-infra.svc.cluster.local:6379",
-                    "dev-redis-token-2.dev-redis-token.dev-infra.svc.cluster.local:6379",
+                    "dev-redis-token-0.dev-redis-token.dev-db.svc.cluster.local:6379",
+                    "dev-redis-token-1.dev-redis-token.dev-db.svc.cluster.local:6379",
+                    "dev-redis-token-2.dev-redis-token.dev-db.svc.cluster.local:6379",
                     "--cluster-replicas", "0"]
       restartPolicy: OnFailure
