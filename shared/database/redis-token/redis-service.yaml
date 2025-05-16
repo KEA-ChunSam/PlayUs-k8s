@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-redis-token
+  labels:
+    app: dev-redis-token
+spec:
+  clusterIP: None
+  ports:
+    - port: 6379
+      name: redis
+    - port: 16379
+      name: cluster
+  selector:
+    app: dev-redis-token

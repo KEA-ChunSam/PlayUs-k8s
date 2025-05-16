@@ -1,0 +1,40 @@
+# === prod 환경 네임스페이스 ===
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-user-service
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-community-service
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-match-service
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-search-service
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-twp-service
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-gateway
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod-db

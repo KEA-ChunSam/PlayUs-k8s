@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev-db
+
+resources:
+  - redis-cluster-init-job.yaml
+  - redis-configmap.yaml
+  - redis-service.yaml
+  - redis-stateful.yaml

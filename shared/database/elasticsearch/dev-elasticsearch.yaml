@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-elasticsearch
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9200
+      targetPort: 9200
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: dev-elasticsearch
+  namespace: dev-infra
+subsets:
+  - addresses:
+      - ip: 129.154.50.74
+    ports:
+      - port: 9200

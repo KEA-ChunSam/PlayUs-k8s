@@ -3,7 +3,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: api-gateway-ingress
-  namespace: dev-infra
   annotations:
     kubernetes.io/ingress.class: nginx  # Ingress를 Nginx Ingress Controller가 감지하게 하는 설정
     # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.7.0/deploy/static/provider/cloud/deploy.yaml 설치 필요

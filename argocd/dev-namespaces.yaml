@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-namespaces
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
+    targetRevision: HEAD
+    path: shared/namespaces
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
