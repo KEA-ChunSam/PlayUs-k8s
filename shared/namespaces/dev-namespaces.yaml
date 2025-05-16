@@ -27,14 +27,14 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev-monitoring
+  name: dev-observability
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev-logging
+  name: dev-gateway
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev-infra
+  name: dev-db

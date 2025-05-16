@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: dev-database-applicationset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: dev-mysql
+            path: shared/database
+          - name: dev-mongo-chat
+            path: shared/database
+          - name: dev-mongo-read
+            path: shared/database
+          - name: dev-elasticsearch
+            path: shared/database
+          - name: dev-s3
+            path: shared/database
+          - name: dev-redis-token
+            path: shared/database/dev-redis-token
+  template:
+    metadata:
+      name: '{{name}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: dev-db
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

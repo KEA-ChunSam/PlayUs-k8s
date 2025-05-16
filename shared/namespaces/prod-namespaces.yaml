@@ -27,14 +27,14 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: prod-monitoring
+  name: prod-observability
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: prod-logging
+  name: prod-gateway
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: prod-infra
+  name: prod-db

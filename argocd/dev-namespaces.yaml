@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dev-playus
+  name: dev-namespaces
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
     targetRevision: HEAD
-    path: .   # 루트 폴더
+    path: shared/namespaces
   destination:
     server: https://kubernetes.default.svc
-    namespace: dev-infra  # 메인 네임스페이스
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true

@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: dev-redis-token
-  namespace: dev-infra
 spec:
   serviceName: "dev-redis-token"
   replicas: 3
