@@ -18,3 +18,10 @@ spec:
           ports:
             - containerPort: 8080
               name: http
+          resources:
+            requests: # 최소 보장 리소스
+              cpu: "100m"
+              memory: "128Mi"
+            limits: # 최대 허용 리소스
+              cpu: "200m"
+              memory: "256Mi"
