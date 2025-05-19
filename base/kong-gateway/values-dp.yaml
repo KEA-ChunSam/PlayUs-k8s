@@ -1,0 +1,30 @@
+ingressController:
+  enabled: false
+
+image:
+  repository: kong/kong-gateway
+  tag: "3.10.0.1"
+
+secretVolumes:
+  - kong-cluster-cert
+
+env:
+  role: data_plane
+  database: "off"     # CP와 mTLS로 통신
+
+  cluster_control_plane: kong-cp-kong-cluster.kong.svc.cluster.local:8005
+  cluster_telemetry_endpoint: kong-cp-kong-clustertelemetry.kong.svc.cluster.local:8006
+
+  lua_ssl_trusted_certificate: /etc/secrets/kong-cluster-cert/tls.crt
+  cluster_cert: /etc/secrets/kong-cluster-cert/tls.crt
+  cluster_cert_key: /etc/secrets/kong-cluster-cert/tls.key
+
+enterprise:
+  enabled: false
+
+proxy:
+  enabled: true
+admin:
+  enabled: false
+manager:
+  enabled: false
