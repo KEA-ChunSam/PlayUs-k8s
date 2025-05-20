@@ -1,11 +1,10 @@
-# shared/database/postgres-kong/postgres-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres-kong
+  name: postgres
 spec:
   selector:
-    app: postgres-kong
+    app: postgres
   ports:
     - port: 5432
       targetPort: 5432

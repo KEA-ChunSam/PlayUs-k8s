@@ -1,55 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres-kong
+  name: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres-kong
+      app: postgres
   template:
     metadata:
       labels:
-        app: postgres-kong
+        app: postgres
     spec:
       containers:
         - name: postgres
           image: postgres:13
           env:
-            - name: POSTGRES_DB
-              value: kong
             - name: POSTGRES_USER
               value: kong
             - name: POSTGRES_PASSWORD
-              value: kong-password
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: postgres-password
+            - name: POSTGRES_DB
+              value: kong
           ports:
             - containerPort: 5432
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -h
+                - localhost
+                - -U
+                - kong
+            initialDelaySeconds: 5
+            periodSeconds: 10
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
-            claimName: postgres-kong-pvc
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-kong
-spec:
-  selector:
-    app: postgres-kong
-  ports:
-    - port: 5432
-      targetPort: 5432
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-kong-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
+            claimName: postgres-pvc
