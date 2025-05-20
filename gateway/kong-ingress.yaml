@@ -1,38 +1,21 @@
-# ingress 설정
+# match-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: kong-ingress
+  name: match-ingress
+  namespace: dev-match-service
   annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: kong
+    konghq.com/strip-path: "false"
 spec:
   rules:
-    - host: api.example.com
+    - host: localhost
       http:
         paths:
-          - path: /
+          - path: /api/matches
             pathType: Prefix
             backend:
               service:
-                name: dev-kong-proxy
+                name: match-service
                 port:
                   number: 80
-    - host: kong-admin.example.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: dev-kong-cp-admin
-                port:
-                  number: 8002
-          - path: /admin-api
-            pathType: Prefix
-            backend:
-              service:
-                name: dev-kong-cp-admin
-                port:
-                  number: 8001

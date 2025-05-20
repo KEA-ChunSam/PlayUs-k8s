@@ -76,22 +76,22 @@ plugins:
 
   - name: rate-limiting
     config:
-      minute: 200  # 개발 환경에서는 더 관대한 제한
+      minute: 200
       hour: 2000
       policy: local
 
-  - name: oauth2
-    service: user-service
-    config:
-      scopes:
-        - read
-        - write
-        - admin
-        - dev
-      token_expiration: 3600  # 개발 환경에서는 더 짧은 토큰 수명
-      enable_authorization_code: true
-      enable_client_credentials: true
-      enable_implicit_grant: true
-      enable_password_grant: true
-      global_credentials: true
-
+#  - name: oauth2
+#    service: user-service
+#    config:
+#      scopes:
+#        - read
+#        - write
+#        - admin
+#        - dev
+#      token_expiration: 3600  # 개발 환경에서는 더 짧은 토큰 수명
+#      enable_authorization_code: true
+#      enable_client_credentials: true
+#      enable_implicit_grant: true
+#      enable_password_grant: true
+#      global_credentials: true
+#
