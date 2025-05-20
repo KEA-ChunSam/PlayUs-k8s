@@ -1,0 +1,21 @@
+# match-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: match-ingress
+  namespace: dev-match-service
+  annotations:
+    kubernetes.io/ingress.class: kong
+    konghq.com/strip-path: "false"
+spec:
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /api/matches
+            pathType: Prefix
+            backend:
+              service:
+                name: match-service
+                port:
+                  number: 80

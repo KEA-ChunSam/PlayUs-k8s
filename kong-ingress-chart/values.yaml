@@ -1,0 +1,13 @@
+# 기본 값 설정
+namespace: default
+host: localhost
+stripPath: "false"
+pathType: Prefix
+
+# 서비스 기본 설정
+service:
+  name: default-service
+  port: 80
+
+path: /
+customAnnotations: {}

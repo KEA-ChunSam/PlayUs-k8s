@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kong-ingress
+description: Kong Ingress 자동화를 위한 Helm 차트
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

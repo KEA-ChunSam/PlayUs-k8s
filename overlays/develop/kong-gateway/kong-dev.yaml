@@ -1,0 +1,97 @@
+# overlays/develop/kong-gateway/kong-dev.yaml
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: user-service
+    url: http://user-service.msa-dev.svc.cluster.local:8080
+    routes:
+      - name: user-routes-dev
+        paths:
+          - /api/users
+          - /api/auth
+        strip_path: false
+
+  - name: community-service
+    url: http://community-service.msa-dev.svc.cluster.local:8080
+    routes:
+      - name: community-routes-dev
+        paths:
+          - /api/communities
+          - /api/posts
+        strip_path: false
+
+  - name: match-service
+    url: http://match-service.dev-match-service.svc.cluster.local:8080
+    routes:
+      - name: match-routes-dev
+        paths:
+          - /api/matches
+        strip_path: false
+
+  - name: search-service
+    url: http://search-service.msa-dev.svc.cluster.local:8080
+    routes:
+      - name: search-routes-dev
+        paths:
+          - /api/search
+        strip_path: false
+
+  - name: twp-service
+    url: http://twp-service.msa-dev.svc.cluster.local:8080
+    routes:
+      - name: twp-routes-dev
+        paths:
+          - /api/twp
+        strip_path: false
+
+consumers:
+  - username: dev-admin-user
+    custom_id: dev-admin-001
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "http://localhost:3000"
+        - "http://localhost:8080"
+        - "http://dev.example.com"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+      credentials: true
+      max_age: 3600
+
+  - name: rate-limiting
+    config:
+      minute: 200
+      hour: 2000
+      policy: local
+
+#  - name: oauth2
+#    service: user-service
+#    config:
+#      scopes:
+#        - read
+#        - write
+#        - admin
+#        - dev
+#      token_expiration: 3600  # 개발 환경에서는 더 짧은 토큰 수명
+#      enable_authorization_code: true
+#      enable_client_credentials: true
+#      enable_implicit_grant: true
+#      enable_password_grant: true
+#      global_credentials: true
+#
