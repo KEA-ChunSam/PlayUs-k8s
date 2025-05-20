@@ -1,0 +1,27 @@
+# base/kong-gateway/kong-cp-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-cp-admin
+spec:
+  selector:
+    app: kong-cp
+  ports:
+    - name: admin
+      port: 8001
+      targetPort: 8001
+    - name: manager
+      port: 8002
+      targetPort: 8002
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-cp-cluster
+spec:
+  selector:
+    app: kong-cp
+  ports:
+    - name: cluster
+      port: 8005
+      targetPort: 8005

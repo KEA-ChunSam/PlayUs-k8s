@@ -1,4 +1,4 @@
-# 프록시 노드
+# base/kong-gateway/kong-dp-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,48 +19,30 @@ spec:
         - name: kong
           image: kong:3.4.0
           env:
+            - name: KONG_CLUSTER_CERT
+              value: /etc/secrets/kong-cluster-cert/tls.crt
+            - name: KONG_CLUSTER_CERT_KEY
+              value: /etc/secrets/kong-cluster-cert/tls.key
             - name: KONG_ROLE
               value: "data_plane"
             - name: KONG_DATABASE
               value: "off"
             - name: KONG_CLUSTER_CONTROL_PLANE
               value: "kong-cp-cluster:8005"
-            - name: KONG_CLUSTER_CERT
-              value: "/etc/secrets/kong-cluster/tls.crt"
-            - name: KONG_CLUSTER_CERT_KEY
-              value: "/etc/secrets/kong-cluster/tls.key"
-            - name: KONG_LUA_SSL_TRUSTED_CERTIFICATE
-              value: "/etc/secrets/kong-cluster/tls.crt"
             - name: KONG_PROXY_LISTEN
               value: "0.0.0.0:8000"
             - name: KONG_PROXY_LISTEN_SSL
               value: "0.0.0.0:8443"
+          volumeMounts:
+            - name: kong-cluster-cert
+              mountPath: /etc/secrets/kong-cluster-cert
+              readOnly: true
           ports:
             - containerPort: 8000
               name: proxy
             - containerPort: 8443
               name: proxy-ssl
-          volumeMounts:
-            - name: kong-cluster-cert
-              mountPath: /etc/secrets/kong-cluster
-              readOnly: true
       volumes:
         - name: kong-cluster-cert
           secret:
             secretName: kong-cluster-cert
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: kong-proxy
-spec:
-  type: LoadBalancer
-  selector:
-    app: kong-dp
-  ports:
-    - name: proxy
-      port: 80
-      targetPort: 8000
-    - name: proxy-ssl
-      port: 443
-      targetPort: 8443

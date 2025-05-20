@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-kong-config
+data:
+  fluent-bit.conf: |
+    [INPUT]
+        Name tail
+        Path /var/log/kong/*.log
+        Tag kong.*
+        Parser json
+    
+    [OUTPUT]
+        Name forward
+        Match kong.*
+        Host loki-service
+        Port 24224

@@ -1,0 +1,71 @@
+# base/kong-gateway/kong-cp-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong-cp
+  labels:
+    app: kong-cp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong-cp
+  template:
+    metadata:
+      labels:
+        app: kong-cp
+    spec:
+      containers:
+        - name: kong
+          image: kong:3.4.0
+          env:
+            - name: KONG_CLUSTER_CERT
+              value: /etc/secrets/kong-cluster-cert/tls.crt
+            - name: KONG_CLUSTER_CERT_KEY
+              value: /etc/secrets/kong-cluster-cert/tls.key
+            - name: KONG_ROLE
+              value: "control_plane"
+            - name: KONG_DATABASE
+              value: "postgres"
+            - name: KONG_PG_HOST
+              value: "dev-postgres-kong"
+            - name: KONG_PG_USER
+              value: "kong"
+            - name: KONG_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kong-secrets
+                  key: postgres-password
+            - name: KONG_ADMIN_LISTEN
+              value: "0.0.0.0:8001"
+            - name: KONG_ADMIN_GUI_LISTEN
+              value: "0.0.0.0:8002"
+            - name: KONG_ADMIN_GUI_URL
+              value: "http://kong-admin.example.com:8002"
+            - name: KONG_ADMIN_GUI_API_URL
+              value: "http://kong-admin.example.com:8001"
+            - name: KONG_CLUSTER_LISTEN
+              value: "0.0.0.0:8005"
+            - name: KONG_PLUGINS
+              value: "bundled,oauth2"
+          ports:
+            - containerPort: 8001
+              name: admin
+            - containerPort: 8002
+              name: manager
+            - containerPort: 8005
+              name: cluster
+          volumeMounts:
+            - name: kong-cluster-cert
+              mountPath: /etc/secrets/kong-cluster-cert
+              readOnly: true
+            - name: kong-config
+              mountPath: /usr/local/kong/declarative
+              readOnly: true
+      volumes:
+        - name: kong-config
+          configMap:
+            name: kong-declarative-config
+        - name: kong-cluster-cert
+          secret:
+            secretName: kong-cluster-cert

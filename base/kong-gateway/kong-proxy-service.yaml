@@ -1,0 +1,16 @@
+# base/kong-gateway/kong-proxy-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-proxy
+spec:
+  type: LoadBalancer
+  selector:
+    app: kong-dp
+  ports:
+    - name: proxy
+      port: 80
+      targetPort: 8000
+    - name: proxy-ssl
+      port: 443
+      targetPort: 8443

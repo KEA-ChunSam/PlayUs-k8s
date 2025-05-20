@@ -1,67 +1,105 @@
-# Control Plane용 values 파일
-# Do not use Kong Ingress Controller
-ingressController:
-  enabled: false
-
-image:
-  repository: kong/kong-gateway
-  tag: "3.10.0.1"
-
-# Mount the secret created earlier
-secretVolumes:
-  - kong-cluster-cert
-
-env:
-  # This is a control_plane node
-  role: control_plane
-  # These certificates are used for control plane / data plane communication
-  cluster_cert: /etc/secrets/kong-cluster-cert/tls.crt
-  cluster_cert_key: /etc/secrets/kong-cluster-cert/tls.key
-
-  # Database
-  # CHANGE THESE VALUES
-  database: postgres
-  pg_database: kong
-  pg_user: kong
-  pg_password: demo123
-  pg_host: kong-cp-postgresql.kong.svc.cluster.local
-  pg_ssl: "on"
-
-  # Kong Manager password
-  password: kong_admin_password
-
-# Enterprise functionality
-enterprise:
-  enabled: false
-
-# The control plane serves the Admin API
-admin:
-  enabled: true
-  http:
-    enabled: true
-
-# Clustering endpoints are required in hybrid mode
-cluster:
-  enabled: true
-  tls:
-    enabled: true
-
-clustertelemetry:
-  enabled: true
-  tls:
-    enabled: true
-
-# Optional features
-manager:
-  enabled: false
-
-# These roles will be served by different Helm releases
-proxy:
-  enabled: false
-
-# 추가 작성
-# PostgreSQL DB 사용, Helm이 자동 설치
-postgresql:
-  enabled: true
-  auth:
-    password: demo123
+# 관리 노드
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-cp-config
+data:
+  kong.conf: |
+    # Kong Control Plane 설정
+    role = control_plane
+    cluster_cert = /etc/secrets/kong-cluster/tls.crt
+    cluster_cert_key = /etc/secrets/kong-cluster/tls.key
+    database = postgres
+    pg_host = postgres-kong
+    pg_port = 5432
+    pg_user = kong
+    pg_password = kong-password
+    pg_database = kong
+    admin_listen = 0.0.0.0:8001
+    admin_gui_listen = 0.0.0.0:8002
+    admin_gui_url = http://kong-admin.example.com:8002
+    admin_gui_api_url = http://kong-admin.example.com:8001
+    plugins = bundled,oauth2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong-cp
+  labels:
+    app: kong-cp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong-cp
+  template:
+    metadata:
+      labels:
+        app: kong-cp
+    spec:
+      containers:
+        - name: kong
+          image: kong:3.4.0
+          env:
+            - name: KONG_ROLE
+              value: "control_plane"
+            - name: KONG_DATABASE
+              value: "postgres"
+            - name: KONG_PG_HOST
+              value: "postgres-kong"
+            - name: KONG_PG_USER
+              value: "kong"
+            - name: KONG_PG_PASSWORD
+              value: "kong-password"
+            - name: KONG_ADMIN_LISTEN
+              value: "0.0.0.0:8001"
+            - name: KONG_ADMIN_GUI_LISTEN
+              value: "0.0.0.0:8002"
+            - name: KONG_CLUSTER_LISTEN
+              value: "0.0.0.0:8005"
+            - name: KONG_CLUSTER_CERT
+              value: "/etc/secrets/kong-cluster/tls.crt"
+            - name: KONG_CLUSTER_CERT_KEY
+              value: "/etc/secrets/kong-cluster/tls.key"
+          ports:
+            - containerPort: 8001
+              name: admin
+            - containerPort: 8002
+              name: manager
+            - containerPort: 8005
+              name: cluster
+          volumeMounts:
+            - name: kong-cluster-cert
+              mountPath: /etc/secrets/kong-cluster
+              readOnly: true
+      volumes:
+        - name: kong-cluster-cert
+          secret:
+            secretName: kong-cluster-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-cp-admin
+spec:
+  selector:
+    app: kong-cp
+  ports:
+    - name: admin
+      port: 8001
+      targetPort: 8001
+    - name: manager
+      port: 8002
+      targetPort: 8002
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-cp-cluster
+spec:
+  selector:
+    app: kong-cp
+  ports:
+    - name: cluster
+      port: 8005
+      targetPort: 8005

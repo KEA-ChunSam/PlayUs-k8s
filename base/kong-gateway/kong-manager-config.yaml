@@ -1,0 +1,41 @@
+# 8002 포트를 통해 접근 가능
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-manager-config
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        upstream kong_admin {
+            server kong-cp-admin:8001;
+        }
+    
+        upstream kong_manager {
+            server kong-cp-admin:8002;
+        }
+    
+        server {
+            listen 80;
+            server_name kong-admin.example.com;
+    
+            location /admin-api/ {
+                proxy_pass http://kong_admin/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+    
+            location / {
+                proxy_pass http://kong_manager/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+        }
+    }

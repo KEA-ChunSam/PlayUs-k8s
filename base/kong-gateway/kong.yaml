@@ -1,0 +1,93 @@
+# base/kong-gateway/kong.yaml
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: user-service
+    url: http://user-service:8080
+    routes:
+      - name: user-routes
+        paths:
+          - /api/users
+          - /api/auth
+        strip_path: false
+
+  - name: community-service
+    url: http://community-service:8080
+    routes:
+      - name: community-routes
+        paths:
+          - /api/communities
+          - /api/posts
+        strip_path: false
+
+  - name: match-service
+    url: http://match-service.dev-match-service.svc.cluster.local:80
+    routes:
+      - name: match-routes
+        paths:
+          - /api/matches
+        strip_path: false
+
+  - name: search-service
+    url: http://search-service:8080
+    routes:
+      - name: search-routes
+        paths:
+          - /api/search
+        strip_path: false
+
+  - name: twp-service
+    url: http://twp-service:8080
+    routes:
+      - name: twp-routes
+        paths:
+          - /api/twp
+        strip_path: false
+
+consumers:
+  - username: admin-user
+    custom_id: admin-001
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+      credentials: true
+      max_age: 3600
+
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 1000
+      policy: local
+
+  - name: oauth2
+    service: user-service
+    config:
+      scopes:
+        - read
+        - write
+        - admin
+      token_expiration: 7200
+      enable_authorization_code: true
+      enable_client_credentials: true
+      enable_implicit_grant: true
+      enable_password_grant: true
+      global_credentials: true

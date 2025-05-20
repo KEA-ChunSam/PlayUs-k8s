@@ -1,0 +1,33 @@
+# base/kong-gateway/kong-init-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kong-migrations
+spec:
+  template:
+    metadata:
+      name: kong-migrations
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kong-migrations
+          image: kong:3.4.0
+          env:
+            - name: KONG_DATABASE
+              value: postgres
+            - name: KONG_PG_HOST
+              value: dev-postgres-kong
+            - name: KONG_PG_USER
+              value: kong
+            - name: KONG_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kong-secrets
+                  key: postgres-password
+          command: [ "/bin/sh" ]
+          args:
+            - -c
+            - |
+              kong migrations bootstrap
+              kong migrations up
+              kong migrations finish
