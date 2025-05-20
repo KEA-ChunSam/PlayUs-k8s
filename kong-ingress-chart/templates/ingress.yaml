@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "kong-ingress.name" . }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: kong
+    konghq.com/strip-path: {{ .Values.stripPath | default "false" | quote }}  # 경로 수정 없이 그대로 전달
+    # 주석을 추가할 수 있도록 동적 확장 가능
+    {{- if .Values.customAnnotations }}
+    {{- toYaml .Values.customAnnotations | nindent 4 }}
+    {{- end }}
+spec:
+  rules:
+    - host: {{ .Values.host }}  # 클라이언트가 요청할 도메인 또는 호스트네임
+      http:
+        paths:
+          - path: {{ .Values.path }}  # 요청 경로
+            pathType: {{ .Values.pathType | default "Prefix" }}
+            backend:
+              service:
+                name: {{ .Values.service.name }}  # 라우팅될 쿠버네티스 서비스 이름
+                port:
+                  number: {{ .Values.service.port }}  # 라우팅될 쿠버네티스 서비스 포트

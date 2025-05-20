@@ -1,0 +1,6 @@
+namespace: dev-community-service
+service:
+  name: community-service
+  port: 80
+path: /api/community
+host: api.example.com     # ip.nip.io

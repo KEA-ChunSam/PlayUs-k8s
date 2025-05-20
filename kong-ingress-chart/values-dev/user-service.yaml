@@ -1,0 +1,6 @@
+namespace: dev-user-service
+service:
+  name: user-service
+  port: 80
+path: /api/users
+host: api.example.com     # ip.nip.io

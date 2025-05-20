@@ -9,7 +9,7 @@ ENV=$1  # "dev" 또는 "prod"
 if [[ "$ENV" == "dev" ]]; then
   echo "🚧 Deploying Kong for DEV environment..."
   helm upgrade --install ingress-kong kong/kong \
-    --namespace kong \
+    --namespace dev-gateway \
     --create-namespace \
     --set ingressController.enabled=true \
     --set ingressController.watchNamespace="" \
@@ -26,7 +26,7 @@ if [[ "$ENV" == "dev" ]]; then
 elif [[ "$ENV" == "prod" ]]; then
   echo "🚀 Deploying Kong for PROD environment..."
   helm upgrade --install ingress-kong kong/kong \
-    --namespace kong \
+    --namespace prod-gateway \
     --create-namespace \
     --set ingressController.enabled=true \
     --set ingressController.watchNamespace="" \

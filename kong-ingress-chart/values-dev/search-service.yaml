@@ -1,0 +1,6 @@
+namespace: dev-search-service
+service:
+  name: search-service
+  port: 80
+path: /api/search
+host: api.example.com     # ip.nip.io
