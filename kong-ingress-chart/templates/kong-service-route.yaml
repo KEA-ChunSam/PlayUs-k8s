@@ -1,0 +1,56 @@
+{{- if index .Values "values-dev" "slack-webhook" "enabled" }}
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: cors-slack-webhook
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+plugin: cors
+config:
+  origins:
+  {{- range index .Values "values-dev" "slack-webhook" "cors" "origins" }}
+    - {{ . | quote }}
+  {{- end }}
+  methods:
+  {{- range index .Values "values-dev" "slack-webhook" "cors" "methods" }}
+    - {{ . | quote }}
+  {{- end }}
+  headers:
+  {{- range index .Values "values-dev" "slack-webhook" "cors" "headers" }}
+    - {{ . | quote }}
+  {{- end }}
+  credentials: {{ index .Values "values-dev" "slack-webhook" "cors" "credentials" }}
+  preflight_continue: {{ index .Values "values-dev" "slack-webhook" "cors" "preflightContinue" }}
+  max_age: 3600
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongService
+metadata:
+  name: slack-webhook-service
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  url: {{ index .Values "values-dev" "slack-webhook" "service" "url" }}
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongRoute
+metadata:
+  name: slack-webhook-route
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  annotations:
+    konghq.com/plugins: cors-slack-webhook
+spec:
+  protocols:
+    - https
+    - http
+  paths:
+    - {{ index .Values "values-dev" "slack-webhook" "path" | default .Values.path }}
+  methods:
+    - POST
+    - OPTIONS
+  strip_path: {{ .Values.stripPath | default "false" }}
+  preserve_host: true
+  https_redirect_status_code: 308
+  hosts:
+    - {{ index .Values "values-dev" "slack-webhook" "host" | default .Values.host | quote }}
+  service: slack-webhook-service
+{{- end }}

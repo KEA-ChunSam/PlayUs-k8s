@@ -2,7 +2,7 @@ enabled: true
 name: slack-webhook
 # 아래 host는 Kong API Gateway로 들어오는 요청의 호스트 이름입니다.
 # 클러스터 내부에서만 사용: slack-webhook.default.svc.cluster.local
-# 외부에서 접근 필요: api-gateway.example.com
+# 외부에서 접근 필요: your-api-gateway.example.com
 # 개발환경: localhost
 host: slack-webhook.default.svc.cluster.local
 path: /slack/webhook
