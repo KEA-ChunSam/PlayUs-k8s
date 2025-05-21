@@ -1,21 +1,20 @@
-# match-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: match-ingress
-  namespace: dev-match-service
+  name: dev-argocd-server-ingress
+  namespace: argocd
   annotations:
     kubernetes.io/ingress.class: kong
     konghq.com/strip-path: "false"
+    konghq.com/preserve-host: "true"
 spec:
   rules:
-    - host: localhost
-      http:
+    - http:
         paths:
-          - path: /api/matches
+          - path: /
             pathType: Prefix
             backend:
               service:
-                name: match-service
+                name: argocd-server
                 port:
                   number: 80
