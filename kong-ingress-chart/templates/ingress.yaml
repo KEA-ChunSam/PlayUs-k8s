@@ -12,7 +12,9 @@ metadata:
     {{- end }}
 spec:
   rules:
-    - host: {{ .Values.host }}  # 클라이언트가 요청할 도메인 또는 호스트네임
+    - {{- if .Values.host }}      # 클라이언트가 요청할 도메인 또는 호스트네임
+        host: {{ .Values.host }}
+            {{- end }}
       http:
         paths:
           - path: {{ .Values.path }}  # 요청 경로

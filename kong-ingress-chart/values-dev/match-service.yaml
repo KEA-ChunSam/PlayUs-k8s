@@ -3,4 +3,4 @@ service:
   name: match-service
   port: 80
 path: /api/match
-host: api.example.com     # ip.nip.io
+#host: api.example.com     # ip.nip.io
