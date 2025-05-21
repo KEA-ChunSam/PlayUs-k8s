@@ -1,3 +1,24 @@
-slackWebhook:
+enabled: true
+name: slack-webhook
+# 아래 host는 Kong API Gateway로 들어오는 요청의 호스트 이름입니다.
+# 클러스터 내부에서만 사용: slack-webhook.default.svc.cluster.local
+# 외부에서 접근 필요: api-gateway.example.com
+# 개발환경: localhost
+host: slack-webhook.default.svc.cluster.local
+path: /slack/webhook
+service:
+  url: https://hooks.slack.com/services/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
+  host: hooks.slack.com
+  path: /services/T08H7N433M2/B08RY01LU2G/8lopFWaitZlEnyQPNsFxfRwl
+cors:
   enabled: true
-  path: "/slack/webhook"
+  origins:
+    - "*"
+  methods:
+    - POST
+    - OPTIONS
+  headers:
+    - Content-Type
+  credentials: false
+  preflightContinue: false
+  optionsStatusCode: 204
