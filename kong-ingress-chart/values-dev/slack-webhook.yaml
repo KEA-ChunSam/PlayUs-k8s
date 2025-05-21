@@ -1,3 +1,8 @@
 slackWebhook:
   enabled: true
-  path: "/slack/webhook"
+  host: "hooks.slack.com"
+  path: "/slack/webhook"              # Kong이 받을 경로
+  webhookPath: "/services/T08H7N433M2/B08RY01LU2G/8lopFWaitZlEnyQPNsFxfRwl"  # Slack 실제 경로
+  servicePort: 443
+  stripPath: false
+  corsEnabled: true

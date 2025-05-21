@@ -1,5 +1,16 @@
 {{- if .Values.slackWebhook.enabled }}
 ---
+# KongService 정의: 실제 Slack Webhook URL
+apiVersion: configuration.konghq.com/v1
+kind: KongService
+metadata:
+  name: slack-webhook-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  url: https://hooks.slack.com{{ .Values.slackWebhook.webhookPath }}
+
+---
+# CORS Plugin
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
 metadata:
@@ -18,44 +29,94 @@ config:
     - Custom-Header
   credentials: false
   max_age: 3600
+
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+# OPTIONS 요청을 위한 response-transformer Plugin
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
 metadata:
-  name: slack-webhook-ingress
+  name: slack-webhook-options
+  namespace: {{ .Release.Namespace }}
+plugin: response-transformer
+config:
+  add:
+    headers:
+      - "Access-Control-Allow-Origin: *"
+      - "Access-Control-Allow-Methods: POST, OPTIONS"
+      - "Access-Control-Allow-Headers: Content-Type"
+  remove:
+    json:
+      - ".*"
+
+---
+# KongRoute 정의: POST/OPTIONS 요청 처리
+apiVersion: configuration.konghq.com/v1
+kind: KongRoute
+metadata:
+  name: slack-webhook-route
   namespace: {{ .Release.Namespace }}
   annotations:
     kubernetes.io/ingress.class: kong
-    konghq.com/plugins: slack-webhook-cors
-    konghq.com/protocols: https
-    konghq.com/preserve-host: "false"
-    konghq.com/host-header: "hooks.slack.com"
-    # 여기서 직접 웹훅 URL로 연결합니다
-    konghq.com/path: "/services/T08H7N433M2/B08RY01LU2G/8lopFWaitZlEnyQPNsFxfRwl"
 spec:
-  rules:
-    - http:
-        paths:
-          - path: {{ .Values.slackWebhook.path }}
-            pathType: Prefix
-            backend:
-              service:
-                name: slack-webhook-service
-                port:
-                  number: 443
+  protocols:
+    - http
+    - https
+  paths:
+    - {{ .Values.slackWebhook.path }}
+  methods:
+    - POST
+    - OPTIONS
+  headers:
+    Content-Type:
+      - application/json
+  plugins:
+    - name: slack-webhook-cors
+  service: slack-webhook-service
+
 ---
-# Kong에서 외부 서비스로 직접 연결하는 서비스
-apiVersion: v1
-kind: Service
+# OPTIONS 요청 전용 Route (헤더 처리 플러그인 연결)
+apiVersion: configuration.konghq.com/v1
+kind: KongRoute
 metadata:
-  name: slack-webhook-service
+  name: slack-webhook-options-route
   namespace: {{ .Release.Namespace }}
+  annotations:
+    kubernetes.io/ingress.class: kong
 spec:
-  type: ExternalName
-  externalName: hooks.slack.com
-  ports:
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 443
+  protocols:
+    - http
+    - https
+  paths:
+    - {{ .Values.slackWebhook.path }}
+  methods:
+    - OPTIONS
+  plugins:
+    - name: slack-webhook-options
+  service: slack-webhook-service
+
+---
+# KongUpstreamPolicy 정의: Slack DNS 기반 프록시 설정
+apiVersion: configuration.konghq.com/v1beta1
+kind: KongUpstreamPolicy
+metadata:
+  name: slack-upstream-policy
+  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
+spec:
+  algorithm: round-robin
+  hash_on: none
+  host_header: {{ .Values.slackWebhook.host }}
+  healthchecks:
+    active:
+      http_path: /
+      healthy:
+        interval: 10
+        successes: 1
+      unhealthy:
+        interval: 10
+        http_failures: 2
+    passive:
+      healthy:
+        successes: 1
+      unhealthy:
+        http_failures: 3
 {{- end }}
