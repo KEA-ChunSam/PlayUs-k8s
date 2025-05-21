@@ -3,4 +3,4 @@ service:
   name: user-service
   port: 80
 path: /api/users
-host: api.example.com     # ip.nip.io
+#host: api.example.com     # ip.nip.io

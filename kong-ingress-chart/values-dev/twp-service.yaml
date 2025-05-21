@@ -3,4 +3,4 @@ service:
   name: twp-service
   port: 80
 path: /api/twp
-host: api.example.com     # ip.nip.io
+#host: api.example.com     # ip.nip.io
