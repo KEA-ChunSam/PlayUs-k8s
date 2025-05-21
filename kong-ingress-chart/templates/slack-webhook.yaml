@@ -1,38 +1,10 @@
 {{- if .Values.slackWebhook.enabled }}
-apiVersion: v1
-kind: Service
-metadata:
-  name: slack-webhook-proxy
-  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
-  annotations:
-    konghq.com/override: slack-webhook-kong-override
-spec:
-  type: ExternalName
-  externalName: {{ .Values.slackWebhook.host }}
-  ports:
-    - port: {{ .Values.slackWebhook.servicePort }}
-      targetPort: {{ .Values.slackWebhook.servicePort }}
-      protocol: TCP
-      name: https
 ---
-apiVersion: configuration.konghq.com/v1
-kind: KongIngress
-metadata:
-  name: slack-webhook-kong-override
-  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
-spec:
-  route:
-    strip_path: {{ .Values.slackWebhook.stripPath | default true }}
-    preserve_host: false
-  upstream:
-    host_header: {{ .Values.slackWebhook.host }}
----
-{{- if .Values.slackWebhook.corsEnabled }}
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
 metadata:
   name: slack-webhook-cors
-  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
 plugin: cors
 config:
   origins:
@@ -47,18 +19,19 @@ config:
   credentials: false
   max_age: 3600
 ---
-{{- end }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: slack-webhook-ingress
-  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
   annotations:
     kubernetes.io/ingress.class: kong
-    konghq.com/override: slack-webhook-kong-override
-    {{- if .Values.slackWebhook.corsEnabled }}
     konghq.com/plugins: slack-webhook-cors
-    {{- end }}
+    konghq.com/protocols: https
+    konghq.com/preserve-host: "false"
+    konghq.com/host-header: "hooks.slack.com"
+    # 여기서 직접 웹훅 URL로 연결합니다
+    konghq.com/path: "/services/T08H7N433M2/B08RY01LU2G/8lopFWaitZlEnyQPNsFxfRwl"
 spec:
   rules:
     - http:
@@ -67,7 +40,22 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: slack-webhook-proxy
+                name: slack-webhook-service
                 port:
-                  number: {{ .Values.slackWebhook.servicePort }}
+                  number: 443
+---
+# Kong에서 외부 서비스로 직접 연결하는 서비스
+apiVersion: v1
+kind: Service
+metadata:
+  name: slack-webhook-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ExternalName
+  externalName: hooks.slack.com
+  ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 443
 {{- end }}
