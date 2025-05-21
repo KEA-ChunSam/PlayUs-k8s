@@ -11,6 +11,8 @@ spec:
         revision: HEAD
         directories:
           - path: kong-ingress-chart/values-dev/*
+            exclude:
+              - slack-webhook.yaml
   template:
     metadata:
       # values-dev/community-service.yaml → ingress-community-service
