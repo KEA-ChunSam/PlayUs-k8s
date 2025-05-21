@@ -1,0 +1,134 @@
+# 먼저 이 파일을 dev-slack-webhook.yaml 이라는 이름으로 저장
+# Kong Ingress Controller가 이미 설치되어 있다고 가정하고, 슬랙 웹훅 리소스만 생성
+# kubectl apply -f dev-slack-webhook.yaml
+
+# React 앱 → /slack/webhook (Kong Ingress) → slack-webhook-proxy (Nginx) → Slack Webhook URL
+
+# Service
+# 슬랙 요청을 받을 프록시 서비스
+apiVersion: v1
+kind: Service
+metadata:
+  name: slack-webhook-proxy
+  namespace: dev-gateway
+spec:
+  ports:
+    # 이 서비스로 들어온 포트 80 요청을, 선택된 Pod의 80번 포트로 전달
+    - port: 80          # 클러스터 내부에서 이 서비스를 호출할 때 사용
+      targetPort: 80    # 실제 pod 안에 열려 있는 컨테이너 포트 번호
+      protocol: TCP
+      name: http
+  selector:
+    app: slack-webhook-proxy
+---
+# Deployment
+# 실제 요청을 슬랙으로 프록시할 Nginx 컨테이너
+# Nginx는 요청을 슬랙으로 프록시
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slack-webhook-proxy
+  namespace: dev-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slack-webhook-proxy
+  template:
+    metadata:
+      labels:
+        app: slack-webhook-proxy
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine     # 경량 이미지로 Nginx 실행
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: slack-webhook-proxy-config
+---
+# ConfigMap with Nginx configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slack-webhook-proxy-config
+  namespace: dev-gateway
+data:
+  default.conf: |
+    server {
+      listen 80;
+    
+      location /slack/webhook {
+        if ($request_method = 'OPTIONS') {
+          add_header 'Access-Control-Allow-Origin' '*';
+          add_header 'Access-Control-Allow-Methods' 'POST, OPTIONS';
+          add_header 'Access-Control-Allow-Headers' 'Content-Type';
+          add_header 'Access-Control-Max-Age' 3600;
+          return 204;
+        }
+    
+        rewrite ^/slack/webhook$ / break;
+    
+        proxy_pass https://hooks.slack.com/services/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;
+        proxy_ssl_server_name on;
+        proxy_set_header Host hooks.slack.com;
+    
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+      }
+    }
+---
+# Ingress
+# kong이 /slack/webhook 요청을 slack-webhook-proxy 서비스로 라우팅
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: slack-webhook-ingress
+  namespace: dev-gateway
+  annotations:
+    kubernetes.io/ingress.class: "kong"
+    konghq.com/strip-path: "false"
+    konghq.com/preserve-host: "true"
+    konghq.com/https-redirect-status-code: "308"
+    konghq.com/protocols: "http,https"
+    konghq.com/methods: "POST,OPTIONS"
+    konghq.com/plugins: "cors-slack-webhook"
+spec:
+  ingressClassName: kong
+  rules:
+    - host: slack-webhook.dev-gateway.svc.cluster.local   # 퍼블릭 ip.nip.io로 변경 (브라우저에서도 http://public_ip.nip.io/slack/webhook 접근)
+      http:
+        paths:
+          - path: /slack/webhook
+            pathType: Prefix
+            backend:
+              service:
+                name: slack-webhook-proxy
+                port:
+                  number: 80
+---
+# Kong Plugin for CORS
+# CORS 프리플라이트 요청 처리를 위해 Kong에서도 POST, OPTIONS 허용
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: cors-slack-webhook
+  namespace: dev-gateway
+config:
+  origins:
+    - "*"
+  methods:
+    - POST
+    - OPTIONS
+  headers:
+    - Content-Type
+  credentials: false
+  preflight_continue: false
+  max_age: 3600
+plugin: cors
