@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   generators:
-    # 파일 기반 생성기 사용 - values-dev 디렉토리의 각 파일을 기반으로 애플리케이션 생성
+    # values-dev 디렉토리의 각 파일을 기반으로 애플리케이션 생성
     - git:
         repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
         revision: HEAD
