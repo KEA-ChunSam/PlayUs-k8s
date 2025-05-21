@@ -1,0 +1,9 @@
+slackWebhook:
+  enabled: true
+  host: "hooks.slack.com"
+  path: "/services/T08H7N433M2/B08RY01LU2G/8lopFWaitZlEnyQPNsFxfRwl"
+  servicePort: 443
+  corsEnabled: true
+  stripPath: false
+
+namespaceOverride: dev-gateway

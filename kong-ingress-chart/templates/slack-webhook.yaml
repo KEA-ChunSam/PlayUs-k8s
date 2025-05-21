@@ -1,0 +1,73 @@
+{{- if .Values.slackWebhook.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: slack-webhook-proxy
+  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
+  annotations:
+    konghq.com/override: slack-webhook-kong-override
+spec:
+  type: ExternalName
+  externalName: {{ .Values.slackWebhook.host }}
+  ports:
+    - port: {{ .Values.slackWebhook.servicePort }}
+      targetPort: {{ .Values.slackWebhook.servicePort }}
+      protocol: TCP
+      name: https
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongIngress
+metadata:
+  name: slack-webhook-kong-override
+  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
+spec:
+  route:
+    strip_path: {{ .Values.slackWebhook.stripPath | default true }}
+    preserve_host: false
+  upstream:
+    host_header: {{ .Values.slackWebhook.host }}
+---
+{{- if .Values.slackWebhook.corsEnabled }}
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: slack-webhook-cors
+  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
+plugin: cors
+config:
+  origins:
+    - "*"
+  methods:
+    - POST
+    - OPTIONS
+  headers:
+    - Content-Type
+  exposed_headers:
+    - Custom-Header
+  credentials: false
+  max_age: 3600
+---
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: slack-webhook-ingress
+  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
+  annotations:
+    kubernetes.io/ingress.class: kong
+    konghq.com/override: slack-webhook-kong-override
+    {{- if .Values.slackWebhook.corsEnabled }}
+    konghq.com/plugins: slack-webhook-cors
+    {{- end }}
+spec:
+  rules:
+    - http:
+        paths:
+          - path: {{ .Values.slackWebhook.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: slack-webhook-proxy
+                port:
+                  number: {{ .Values.slackWebhook.servicePort }}
+{{- end }}

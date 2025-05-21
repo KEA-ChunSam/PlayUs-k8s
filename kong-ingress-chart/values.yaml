@@ -11,3 +11,12 @@ service:
 
 path: /
 customAnnotations: {}
+
+# Slack Webhook 프록시 관련 기본값
+slackWebhook:
+  enabled: false  # values-dev에서 개별적으로 true 설정
+  host: "hooks.slack.com"
+  path: "/slack/webhook"
+  servicePort: 443
+  corsEnabled: true
+  stripPath: false
