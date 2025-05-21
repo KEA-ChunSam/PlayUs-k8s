@@ -8,4 +8,3 @@ resources:
   - dev-ingress.yaml
   - dev-applicationset.yaml
   - dev-database.yaml
-  - dev-slack-webhook.yaml
