@@ -1,4 +1,4 @@
-{{- if index .Values "values-dev" "slack-webhook" "enabled" }}
+{{- if .Values.slackWebhook.enabled }}
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
@@ -8,19 +8,19 @@ metadata:
 plugin: cors
 config:
   origins:
-  {{- range index .Values "values-dev" "slack-webhook" "cors" "origins" }}
+  {{- range .Values.slackWebhook.cors.origins }}
     - {{ . | quote }}
   {{- end }}
   methods:
-  {{- range index .Values "values-dev" "slack-webhook" "cors" "methods" }}
+  {{- range .Values.slackWebhook.cors.methods }}
     - {{ . | quote }}
   {{- end }}
   headers:
-  {{- range index .Values "values-dev" "slack-webhook" "cors" "headers" }}
+  {{- range .Values.slackWebhook.cors.headers }}
     - {{ . | quote }}
   {{- end }}
-  credentials: {{ index .Values "values-dev" "slack-webhook" "cors" "credentials" }}
-  preflight_continue: {{ index .Values "values-dev" "slack-webhook" "cors" "preflightContinue" }}
+  credentials: {{ .Values.slackWebhook.cors.credentials }}
+  preflight_continue: {{ .Values.slackWebhook.cors.preflightContinue }}
   max_age: 3600
 ---
 apiVersion: configuration.konghq.com/v1
@@ -29,7 +29,7 @@ metadata:
   name: slack-webhook-service
   namespace: {{ .Values.namespace | default .Release.Namespace }}
 spec:
-  url: {{ index .Values "values-dev" "slack-webhook" "service" "url" }}
+  url: {{ .Values.slackWebhook.service.url }}
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongRoute
@@ -43,14 +43,14 @@ spec:
     - https
     - http
   paths:
-    - {{ index .Values "values-dev" "slack-webhook" "path" | default .Values.path }}
+    - {{ .Values.slackWebhook.path | default .Values.path }}
   methods:
     - POST
     - OPTIONS
-  strip_path: {{ .Values.stripPath | default "false" }}
+  strip_path: {{ .Values.stripPath | default false }}
   preserve_host: true
   https_redirect_status_code: 308
   hosts:
-    - {{ index .Values "values-dev" "slack-webhook" "host" | default .Values.host | quote }}
+    - {{ .Values.slackWebhook.host | default .Values.host | quote }}
   service: slack-webhook-service
 {{- end }}
