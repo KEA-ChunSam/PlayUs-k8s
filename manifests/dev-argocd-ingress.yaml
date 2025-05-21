@@ -5,13 +5,13 @@ metadata:
   namespace: argocd
   annotations:
     kubernetes.io/ingress.class: kong
-    konghq.com/strip-path: "false"
+    konghq.com/strip-path: "true"
     konghq.com/preserve-host: "true"
 spec:
   rules:
     - http:
         paths:
-          - path: /
+          - path: /argocd
             pathType: Prefix
             backend:
               service:
