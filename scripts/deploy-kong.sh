@@ -4,9 +4,9 @@
 
 #!/bin/bash
 
-ENV=$1  # "dev" 또는 "prod"
+ENV=$1  # "develop" 또는 "production"
 
-if [[ "$ENV" == "dev" ]]; then
+if [[ "$ENV" == "develop" ]]; then
   echo "🚧 Deploying Kong for DEV environment..."
   helm upgrade --install ingress-kong kong/kong \
     --namespace dev-gateway \
@@ -23,7 +23,7 @@ if [[ "$ENV" == "dev" ]]; then
     --set env.pg_database=kong \
     --set proxy.type=LoadBalancer
 
-elif [[ "$ENV" == "prod" ]]; then
+elif [[ "$ENV" == "production" ]]; then
   echo "🚀 Deploying Kong for PROD environment..."
   helm upgrade --install ingress-kong kong/kong \
     --namespace prod-gateway \
