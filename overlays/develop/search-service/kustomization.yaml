@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - sealed-secret.yaml
   - ../../../base/search-service
+  - redis-rank
 
 patches:
   - path: patch-image.yaml

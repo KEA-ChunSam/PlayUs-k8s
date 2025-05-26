@@ -1,3 +1,6 @@
 # Kubernetes secret files
 **/.env.secret
 **/secret.yaml
+
+# macOS system files
+.DS_Store
