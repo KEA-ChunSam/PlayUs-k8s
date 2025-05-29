@@ -9,5 +9,4 @@ paths:
   - path: /api/party
   - path: /api/chat
 
-# Kong의 정규식 기반 rewrite를 사용하므로 ImplementationSpecific 권장
 pathType: ImplementationSpecific

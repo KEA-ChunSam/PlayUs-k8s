@@ -4,3 +4,23 @@
 
 # macOS system files
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode/
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
