@@ -1,6 +1,15 @@
 namespace: dev-user-service
+
 service:
   name: user-service
   port: 80
-path: /api/users
-#host: api.example.com     # ip.nip.io
+
+paths:
+  - /api/user
+
+stripPath: false
+pathType: Prefix
+
+# Kong에서 /api를 제거하고 나머지 경로만 전달하기 위한 설정
+customAnnotations:
+  konghq.com/rewrite: "/user"

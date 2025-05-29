@@ -1,0 +1,9 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: {{ include "kong-ingress.name" . }}-api-stripper
+  namespace: {{ .Values.namespace }}
+plugin: request-transformer
+config:
+  replace:
+    uri: {{ .Values.targetPath | quote }} 

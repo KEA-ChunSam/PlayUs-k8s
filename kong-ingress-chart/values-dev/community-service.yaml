@@ -1,6 +1,16 @@
 namespace: dev-community-service
+
 service:
   name: community-service
   port: 80
-path: /api/community
-#host: api.example.com     # ip.nip.io
+
+paths:
+  - /api/post
+  - /api/comment
+  - /api/live-match-diary
+
+stripPath: false
+pathType: Prefix
+
+customAnnotations:
+  konghq.com/rewrite: "/$1" 

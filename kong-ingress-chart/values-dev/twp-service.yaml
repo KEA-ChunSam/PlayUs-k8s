@@ -1,6 +1,15 @@
 namespace: dev-twp-service
+
 service:
   name: twp-service
   port: 80
-path: /api/twp
-#host: api.example.com     # ip.nip.io
+
+paths:
+  - /api/party
+  - /api/chat
+
+stripPath: false
+pathType: Prefix
+
+customAnnotations:
+  konghq.com/rewrite: "/$1"

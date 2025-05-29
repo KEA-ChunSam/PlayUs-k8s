@@ -1,6 +1,15 @@
 namespace: dev-match-service
+
 service:
   name: match-service
   port: 80
-path: /api/match
+
+paths:
+  - /api/match
+
+targetPath: "/match"
+pathType: Prefix
 #host: api.example.com     # ip.nip.io
+
+customAnnotations:
+  konghq.com/rewrite: "/match"
