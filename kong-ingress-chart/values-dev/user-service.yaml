@@ -4,12 +4,9 @@ service:
   name: user-service
   port: 80
 
+# 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:
-  - /api/user
+  - path: /api/user
 
-stripPath: false
-pathType: Prefix
-
-# Kong에서 /api를 제거하고 나머지 경로만 전달하기 위한 설정
-customAnnotations:
-  konghq.com/rewrite: "/user"
+# Kong의 정규식 기반 rewrite를 사용하므로 ImplementationSpecific 권장
+pathType: ImplementationSpecific

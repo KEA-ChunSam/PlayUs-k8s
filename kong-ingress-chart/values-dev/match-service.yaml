@@ -4,12 +4,9 @@ service:
   name: match-service
   port: 80
 
+# 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:
-  - /api/match
+  - path: /api/match
 
-targetPath: "/match"
-pathType: Prefix
-#host: api.example.com     # ip.nip.io
-
-customAnnotations:
-  konghq.com/rewrite: "/match"
+# Kong의 정규식 기반 rewrite를 사용하므로 ImplementationSpecific 권장
+pathType: ImplementationSpecific

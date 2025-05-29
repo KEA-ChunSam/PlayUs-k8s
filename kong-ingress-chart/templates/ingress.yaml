@@ -5,27 +5,40 @@ metadata:
   namespace: {{ .Values.namespace }}
   annotations:
     kubernetes.io/ingress.class: kong
-    {{- if .Values.targetPath }}
-    konghq.com/plugins: {{ include "kong-ingress.name" . }}-api-stripper
-    {{- else }}
-    konghq.com/strip-path: {{ .Values.stripPath | quote }}
+    {{- if .Values.host }}
+    kubernetes.io/ingress.host: {{ .Values.host }}
     {{- end }}
-    {{- if .Values.customAnnotations }}
-    {{- toYaml .Values.customAnnotations | nindent 4 }}
+    konghq.com/rewrite: "/$1"
+    konghq.com/path-regex: "^/api/(.*)$"
+    {{- with .Values.customAnnotations }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
   rules:
-    - {{- if .Values.host }}
-      host: {{ .Values.host }}
-      {{- end }}
+    {{- if .Values.host }}
+    - host: {{ .Values.host }}
       http:
         paths:
           {{- range .Values.paths }}
-          - path: {{ . }}
+          - path: {{ .path }}
             pathType: {{ $.Values.pathType }}
             backend:
               service:
                 name: {{ $.Values.service.name }}
                 port:
                   number: {{ $.Values.service.port }}
-          {{- end }} 
+          {{- end }}
+    {{- else }}
+    - http:
+        paths:
+          {{- range .Values.paths }}
+          - path: {{ .path }}
+            pathType: {{ $.Values.pathType }}
+            backend:
+              service:
+                name: {{ $.Values.service.name }}
+                port:
+                  number: {{ $.Values.service.port }}
+          {{- end }}
+    {{- end }} 
+          
