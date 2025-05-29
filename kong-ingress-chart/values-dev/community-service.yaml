@@ -1,6 +1,14 @@
 namespace: dev-community-service
+
 service:
   name: community-service
   port: 80
-path: /api/community
-#host: api.example.com     # ip.nip.io
+
+# 경로 설정 (rewrite는 Ingress level에서 처리)
+paths:
+  - path: /api/post
+  - path: /api/comment
+  - path: /api/live-match-diary
+
+# Kong의 정규식 기반 rewrite를 사용하므로 ImplementationSpecific 권장
+pathType: ImplementationSpecific

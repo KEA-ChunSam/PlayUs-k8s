@@ -1,13 +1,19 @@
-# 기본 값 설정
+# Kong Ingress Chart 기본 설정
 namespace: default
 host: null
-stripPath: "false"
-pathType: Prefix
 
-# 서비스 기본 설정
+# 경로 타입 설정 (Prefix 또는 ImplementationSpecific)
+# Kong의 정규식 기반 rewrite를 사용할 때는 ImplementationSpecific 권장
+pathType: ImplementationSpecific
+
+# 서비스 설정
 service:
   name: default-service
   port: 80
 
-path: /
+# 경로 설정 (rewrite는 Ingress level에서 처리)
+paths:
+  - path: /api/default
+
+# 추가 어노테이션
 customAnnotations: {}

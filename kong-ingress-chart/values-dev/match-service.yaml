@@ -1,6 +1,12 @@
 namespace: dev-match-service
+
 service:
   name: match-service
   port: 80
-path: /api/match
-#host: api.example.com     # ip.nip.io
+
+# 경로 설정 (rewrite는 Ingress level에서 처리)
+paths:
+  - path: /api/match
+
+# Kong의 정규식 기반 rewrite를 사용하므로 ImplementationSpecific 권장
+pathType: ImplementationSpecific
