@@ -32,7 +32,7 @@ data:
 EOF
 
 # SealedSecret으로 변환
-kubeseal -f /tmp/mongo-chat-configmap.yaml -w ./sealed-configmap.yaml
+kubeseal --cert ../../sealed-secrets-public.pem -f /tmp/mongo-chat-configmap.yaml -w ./sealed-configmap.yaml
 
 # 임시 파일 정리
 rm /tmp/mongo-chat-configmap.yaml
