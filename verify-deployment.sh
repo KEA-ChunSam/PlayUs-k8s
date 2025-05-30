@@ -97,7 +97,7 @@ check_argocd_app() {
     fi
 }
 
-log_header "🔍 PlayUs 배포 상태 검증 시작"
+log_header "🔍 배포 상태 검증 시작"
 
 # 클러스터 연결 확인
 log_info "Kubernetes 클러스터 연결 확인..."
@@ -122,7 +122,6 @@ NAMESPACES=(
     "dev-search-service"
     "dev-twp-service"
     "dev-monitoring"
-    "kong"
 )
 
 for ns in "${NAMESPACES[@]}"; do

@@ -1,4 +1,4 @@
-# 🚀 PlayUs 완전 배포 가이드
+# 🚀 PlayUs 배포 가이드
 
 ## 📋 사전 준비 체크리스트
 
@@ -29,25 +29,25 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 
 ### 3. Sealed Secret Controller 설치
 ```bash
-# 자동화 스크립트 사용 (권장)
+# 자동화 스크립트 사용
 ./scripts/setup-sealed-secret.sh
 
 # 또는 수동 설치
 kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.0/controller.yaml
 ```
 
-## 🚀 **원클릭 배포 (권장)**
+## 🚀 **원클릭 배포**
 
 ### 완전 자동화 배포
 ```bash
 # 기본 IP로 전체 배포
 ./deploy-all.sh
 
-# 사용자 지정 IP로 배포
-./deploy-all.sh 129.154.50.74
+# 사용자 지정 IP로 배포 (database-ip)
+./deploy-all.sh 0.0.0.0
 
 # 환경과 IP 모두 지정
-./deploy-all.sh 129.154.50.74 develop
+./deploy-all.sh 0.0.0.0 develop
 ```
 
 ### 배포 옵션 제어
@@ -110,7 +110,7 @@ kubectl apply -f argocd/dev-ingress.yaml
 
 ## 🔍 **배포 상태 검증**
 
-### 자동 검증 스크립트 (권장)
+### 자동 검증 스크립트
 ```bash
 # 전체 배포 상태 검증
 ./verify-deployment.sh
@@ -266,18 +266,10 @@ kubectl describe application <app-name> -n argocd
 
 ## 🚀 성공적인 배포 확인
 
-배포가 성공하면 다음과 같은 상태가 됩니다:
+배포가 성공하면 다음과 같은 상태가 됩니다.
 
-1. ✅ 모든 Pod가 `Running` 상태
-2. ✅ ArgoCD 애플리케이션들이 `Synced` 및 `Healthy` 상태
-3. ✅ Kong을 통해 외부에서 API 접근 가능
-4. ✅ 데이터베이스 엔드포인트가 올바른 IP로 설정됨
-5. ✅ SealedSecret이 정상적으로 복호화됨
-
-## 📞 지원
-
-문제가 발생하면:
-1. `./verify-deployment.sh` 스크립트로 상태 확인
-2. 관련 Pod의 로그 확인
-3. ArgoCD UI에서 동기화 상태 확인
-4. Kong 설정 및 Ingress 규칙 확인 
+✅ 모든 Pod가 `Running` 상태
+✅ ArgoCD 애플리케이션들이 `Synced` 및 `Healthy` 상태
+✅ Kong을 통해 외부에서 API 접근 가능
+✅ 데이터베이스 엔드포인트가 올바른 IP로 설정됨
+✅ SealedSecret이 정상적으로 복호화됨
