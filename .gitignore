@@ -28,3 +28,5 @@ kubeconfig
 # Temporary files
 *.tmp
 *.temp
+
+sealed-secrets-public.pem

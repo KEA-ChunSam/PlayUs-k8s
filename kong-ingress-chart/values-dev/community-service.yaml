@@ -9,5 +9,10 @@ paths:
   - path: /api/post
   - path: /api/comment
   - path: /api/live-match-diary
+  - path: /api/community/health
 
 pathType: ImplementationSpecific
+
+annotations:
+  konghq.com/path-regex: "^/api/community/(.*)$"
+  konghq.com/rewrite: "/$1"
