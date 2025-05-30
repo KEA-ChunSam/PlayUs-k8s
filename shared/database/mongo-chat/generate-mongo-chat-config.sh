@@ -12,6 +12,16 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+# 프로젝트 루트 디렉토리 찾기
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+SEALED_SECRETS_CERT="${PROJECT_ROOT}/sealed-secrets-public.pem"
+
+if [ ! -f "$SEALED_SECRETS_CERT" ]; then
+  echo "❌ 오류: sealed-secrets-public.pem 파일을 찾을 수 없습니다: $SEALED_SECRETS_CERT"
+  exit 1
+fi
+
 # dev-db 네임스페이스와 mongo-chat-config라는 이름의 ConfigMap 생성 예정
 MONGO_CHAT_IP="$1"
 NAMESPACE="dev-db"
@@ -32,7 +42,7 @@ data:
 EOF
 
 # SealedSecret으로 변환
-kubeseal --cert ../../sealed-secrets-public.pem -f /tmp/mongo-chat-configmap.yaml -w ./sealed-configmap.yaml
+kubeseal --cert "$SEALED_SECRETS_CERT" -f /tmp/mongo-chat-configmap.yaml -w ./sealed-configmap.yaml
 
 # 임시 파일 정리
 rm /tmp/mongo-chat-configmap.yaml
