@@ -38,9 +38,19 @@ log_info() {
 
 # === 설정 ===
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"  # scripts 디렉토리의 부모 디렉토리가 프로젝트 루트
 OVERLAYS_DIR="${PROJECT_ROOT}/overlays/develop"
 ORIGINAL_DIR="$(pwd)"  # 현재 디렉토리 저장
+
+# sealed-secrets-public.pem 파일 경로 설정
+export SEALED_SECRETS_CERT="${PROJECT_ROOT}/sealed-secrets-public.pem"
+
+# sealed-secrets-public.pem 파일 존재 확인
+if [ ! -f "$SEALED_SECRETS_CERT" ]; then
+    log_error "sealed-secrets-public.pem 파일을 찾을 수 없습니다: $SEALED_SECRETS_CERT"
+    log_info "프로젝트 루트 디렉토리에 sealed-secrets-public.pem 파일이 있는지 확인해주세요."
+    exit 1
+fi
 
 # 서비스 목록
 SERVICES=(
@@ -95,7 +105,7 @@ for service in "${SERVICES[@]}"; do
     # 스크립트 실행 권한 부여 및 실행
     log_step "${service} 시크릿 생성 중..."
     chmod +x "$GENERATE_SCRIPT"
-    if (cd "$SECRET_WORKSPACE" && ./generate-sealed-secret.sh); then
+    if (cd "$SECRET_WORKSPACE" && SEALED_SECRETS_CERT="$SEALED_SECRETS_CERT" ./generate-sealed-secret.sh); then
         log_success "${service} 시크릿 생성 완료"
     else
         log_error "${service} 시크릿 생성 실패"
