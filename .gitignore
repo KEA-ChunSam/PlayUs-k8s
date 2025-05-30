@@ -2,6 +2,10 @@
 **/.env.secret
 **/secret.yaml
 
+# Configuration templates with sensitive data
+**/config-template.yaml
+**/ip-config.yaml
+
 # macOS system files
 .DS_Store
 .AppleDouble

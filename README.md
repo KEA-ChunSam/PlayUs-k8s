@@ -1,6 +1,6 @@
 # PlayUs Kubernetes 배포 환경
 
-PlayUs 마이크로서비스의 Kubernetes 배포를 위한 GitOps 기반 인프라스트럭처 저장소입니다. ArgoCD를 사용하여 자동화된 배포와 모니터링을 제공합니다.
+PlayUs 마이크로서비스의 Kubernetes 배포를 위한 GitOps 기반 인프라스트럭처 리포지토리입니다. ArgoCD를 사용하여 자동화된 배포와 모니터링을 제공합니다.
 
 ## 📋 목차
 
@@ -14,12 +14,12 @@ PlayUs 마이크로서비스의 Kubernetes 배포를 위한 GitOps 기반 인프
 
 ## 🏗️ 아키텍처 개요
 
-PlayUs는 다음 마이크로서비스로 구성됩니다:
+PlayUs는 다음 마이크로서비스로 구성됩니다.
 
 - **user-service**: 사용자 관리 서비스
 - **community-service**: 커뮤니티 및 게시판 서비스
 - **search-service**: 검색 기능 서비스
-- **twp-service**: TWP 관련 서비스
+- **twp-service**: 직관팟 관련 서비스
 
 ### 기술 스택
 - **Orchestration**: Kubernetes
@@ -58,11 +58,6 @@ PlayUs-k8s/
 │   └── namespaces/             # 네임스페이스 템플릿
 ├── kong-ingress-chart/         # Kong 설정
 ├── manifests/                  # 공통 매니페스트
-├── scripts/                    # 자동화 스크립트
-│   ├── setup-argocd.sh         # ArgoCD 초기 설정
-│   ├── deploy-kong.sh          # Kong 배포
-│   ├── setup-sealed-secret.sh  # Sealed Secret 설정
-│   └── deploy.sh               # 전체 배포 스크립트
 └── .github/                    # GitHub Actions 워크플로우
 ```
 
@@ -75,7 +70,7 @@ PlayUs-k8s/
 
 ### Kong Ingress Controller
 - **목적**: API 게이트웨이 및 라우팅
-- **기능**: 라우팅, 로드밸런싱
+- **기능**: 라우팅, 로드 밸런싱
 
 ### Sealed Secrets
 - **목적**: 안전한 시크릿 관리
@@ -92,9 +87,9 @@ PlayUs-k8s/
 ```bash
 # 필수 도구 설치
 kubectl   # Kubernetes CLI
+kustomize # Kustomize CLI (kubectl에 내장)
 helm      # Helm 패키지 매니저
 argocd    # ArgoCD CLI
-kustomize # Kustomize CLI (kubectl에 내장)
 ```
 
 ### 1단계: 클러스터 준비
@@ -130,9 +125,9 @@ kubectl apply -f argocd/dev-applicationset.yaml
 
 ## 🚀 배포 가이드
 
-### 자동 배포 (권장)
+### 자동 배포
 
-ArgoCD가 Git 저장소의 변경사항을 자동으로 감지하여 배포합니다:
+ArgoCD가 Git 저장소의 변경사항을 자동으로 감지하여 배포합니다.
 
 1. 코드 변경 후 `develop` 브랜치에 푸시
 2. ArgoCD가 변경사항 감지 (기본 3분 간격)
@@ -141,7 +136,7 @@ ArgoCD가 Git 저장소의 변경사항을 자동으로 감지하여 배포합�
 
 ### 수동 배포
 
-긴급 상황이나 테스트 시 수동 배포:
+긴급 상황이나 테스트 시 수동 배포합니다.
 
 ```bash
 # 특정 서비스만 배포
