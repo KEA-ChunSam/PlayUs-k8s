@@ -157,6 +157,17 @@ if [ "$DEPLOY_ARGOCD" = "true" ]; then
         fi
         log_success "ArgoCD 설치 완료"
     fi
+
+    # Repo Server SecurityContext 설정
+    log_step "ArgoCD Repo Server 권한 설정..."
+    if [ -f "argocd/dev-argocd-repo-server.yaml" ]; then
+        kubectl apply -f argocd/dev-argocd-repo-server.yaml
+        kubectl rollout restart deployment argocd-repo-server -n argocd
+        kubectl wait --for=condition=available --timeout=300s deployment/argocd-repo-server -n argocd
+        log_success "ArgoCD Repo Server 권한 설정 완료"
+    else
+        log_warning "argocd/dev-argocd-repo-server.yaml 파일을 찾을 수 없습니다."
+    fi
 fi
 
 # === 3. Kong Ingress Controller 설정 ===
