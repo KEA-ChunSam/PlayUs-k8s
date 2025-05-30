@@ -2,7 +2,7 @@
 
 # Mongo Chat IP Configuration Generator for SealedSecret
 # 사용법: ./generate-mongo-chat-config.sh <mongo-chat-ip>
-# 예시: ./generate-mongo-chat-config.sh 129.154.50.74
+# 예시: ./generate-mongo-chat-config.sh 0.0.0.0
 
 set -e
 

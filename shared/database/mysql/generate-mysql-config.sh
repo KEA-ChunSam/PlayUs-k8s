@@ -2,7 +2,7 @@
 
 # MySQL IP Configuration Generator for SealedSecret
 # 사용법: ./generate-mysql-config.sh <mysql-ip>
-# 예시: ./generate-mysql-config.sh 129.154.50.74
+# 예시: ./generate-mysql-config.sh 0.0.0.0
 
 set -e
 

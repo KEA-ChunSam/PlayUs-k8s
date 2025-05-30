@@ -2,7 +2,7 @@
 
 # Elasticsearch IP Configuration Generator for SealedSecret
 # 사용법: ./generate-elasticsearch-config.sh <elasticsearch-ip>
-# 예시: ./generate-elasticsearch-config.sh 129.154.50.74
+# 예시: ./generate-elasticsearch-config.sh 0.0.0.0
 
 set -e
 
@@ -12,6 +12,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+# dev-db 네임스페이스와 elasticsearch-config라는 이름의 ConfigMap 생성 예정
 ELASTICSEARCH_IP="$1"
 NAMESPACE="dev-db"
 CONFIGMAP_NAME="elasticsearch-config"

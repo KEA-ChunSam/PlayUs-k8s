@@ -2,7 +2,7 @@
 
 # Mongo Read IP Configuration Generator for SealedSecret
 # 사용법: ./generate-mongo-read-config.sh <mongo-read-ip>
-# 예시: ./generate-mongo-read-config.sh 129.154.50.74
+# 예시: ./generate-mongo-read-config.sh 0.0.0.0
 
 set -e
 
