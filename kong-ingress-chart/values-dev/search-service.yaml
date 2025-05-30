@@ -7,5 +7,11 @@ service:
 # 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:
   - path: /api/search
+  - path: /api/search/health
 
 pathType: ImplementationSpecific
+
+annotations:
+  konghq.com/path-regex: "^/api/search/(.*)$"
+  konghq.com/rewrite: "/$1"
+  

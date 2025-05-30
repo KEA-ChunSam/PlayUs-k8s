@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# PlayUs 완전 자동화 배포 스크립트
+# PlayUs 자동화 배포 스크립트
 # 사용법: ./deploy-all.sh [database-ip] [environment]
-# 예시: ./deploy-all.sh 129.154.50.74 develop
+# 예시: ./deploy-all.sh 0.0.0.0 develop
 
 set -e  # 에러 발생 시 즉시 종료
 
@@ -46,8 +46,14 @@ log_info() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_DIR}"
 
-# 기본값 설정
-DB_IP="${1:-129.154.50.74}"
+if [ -z "$1" ]; then
+  echo "❌ DB IP를 입력하세요 (예: ./deploy.sh 0.0.0.0)"
+  exit 1
+fi
+
+DB_IP="$1"
+
+# 기본값 설정 
 ENVIRONMENT="${2:-develop}"
 
 # 배포 옵션 (환경변수로 제어 가능)
@@ -58,7 +64,7 @@ DEPLOY_DATABASES="${DEPLOY_DATABASES:-true}"
 DEPLOY_SERVICES="${DEPLOY_SERVICES:-true}"
 DEPLOY_INGRESS="${DEPLOY_INGRESS:-true}"
 
-log_header "🚀 PlayUs 완전 자동화 배포 시작"
+log_header "🚀 PlayUs 자동화 배포 시작"
 log_info "데이터베이스 IP: ${DB_IP}"
 log_info "환경: ${ENVIRONMENT}"
 log_info "프로젝트 루트: ${PROJECT_ROOT}"
@@ -151,36 +157,35 @@ if [ "$DEPLOY_ARGOCD" = "true" ]; then
         fi
         log_success "ArgoCD 설치 완료"
     fi
-    
-    # ArgoCD 초기 비밀번호 출력
-    if kubectl get secret argocd-initial-admin-secret -n argocd > /dev/null 2>&1; then
-        ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-        log_info "ArgoCD 로그인 정보 - 사용자: admin, 비밀번호: ${ARGOCD_PASSWORD}"
-    fi
 fi
 
 # === 3. Kong Ingress Controller 설정 ===
 if [ "$DEPLOY_KONG" = "true" ]; then
     log_header "🌐 Kong Ingress Controller 설정"
-    
-    # Kong이 이미 설치되어 있는지 확인
-    if kubectl get namespace "${ENVIRONMENT}-gateway" > /dev/null 2>&1 && helm list -n "${ENVIRONMENT}-gateway" | grep -q ingress-kong; then
+
+    # develop → dev 매핑
+    if [ "$ENVIRONMENT" = "develop" ]; then
+        GATEWAY_NAMESPACE="dev-gateway"
+    else
+        GATEWAY_NAMESPACE="${ENVIRONMENT}-gateway"
+    fi
+
+    if kubectl get namespace "$GATEWAY_NAMESPACE" > /dev/null 2>&1 && helm list -n "$GATEWAY_NAMESPACE" | grep -q ingress-kong; then
         log_success "Kong이 이미 설치되어 있습니다."
     else
         log_step "Kong Ingress Controller 설치 중..."
-        
-        # Helm 레포지토리 추가
+
         helm repo add kong https://charts.konghq.com > /dev/null 2>&1 || true
         helm repo update > /dev/null 2>&1
-        
+
         if [ -f "scripts/deploy-kong.sh" ]; then
             chmod +x scripts/deploy-kong.sh
             ./scripts/deploy-kong.sh "$ENVIRONMENT"
         else
             # 기본 설치 방법
-            kubectl create namespace "${ENVIRONMENT}-gateway" --dry-run=client -o yaml | kubectl apply -f -
+            kubectl create namespace "$GATEWAY_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
             helm upgrade --install ingress-kong kong/kong \
-                --namespace "${ENVIRONMENT}-gateway" \
+                --namespace "$GATEWAY_NAMESPACE" \
                 --set ingressController.enabled=true \
                 --set ingressController.watchNamespace="" \
                 --set env.database=postgres \
@@ -242,7 +247,7 @@ if [ "$DEPLOY_DATABASES" = "true" ]; then
             log_success "MySQL IP 설정 완료"
         fi
         
-        # Elasticsearch IP 설정 (스크립트가 있는 경우에만)
+        # Elasticsearch IP 설정
         if [ -f "shared/database/elasticsearch/generate-elasticsearch-config.sh" ]; then
             log_step "Elasticsearch IP 설정..."
             cd shared/database/elasticsearch
@@ -270,11 +275,26 @@ if [ "$DEPLOY_SERVICES" = "true" ]; then
         kubectl apply -f argocd/dev-database.yaml
         log_success "데이터베이스 ApplicationSet 배포 완료"
         
-        # 잠시 대기 (데이터베이스가 먼저 배포되도록)
+        # 잠시 대기
         log_step "데이터베이스 배포 대기 중 (10초)..."
         sleep 10
     fi
     
+    # 서비스 시크릿 생성
+    if [ -f "scripts/generate-all-secrets.sh" ]; then
+        log_step "서비스 시크릿 생성 중..."
+        chmod +x scripts/generate-all-secrets.sh
+        if ./scripts/generate-all-secrets.sh; then
+            log_success "서비스 시크릿 생성 완료"
+        else
+            log_error "서비스 시크릿 생성 실패"
+            log_warning "시크릿 생성에 실패했지만 배포는 계속 진행합니다."
+        fi
+    else
+        log_warning "generate-all-secrets.sh 스크립트를 찾을 수 없습니다."
+        log_info "수동으로 시크릿을 생성해주세요."
+    fi
+
     # 메인 서비스 ApplicationSet 배포
     if [ -f "argocd/dev-applicationset.yaml" ]; then
         log_step "메인 서비스 ApplicationSet 배포..."
@@ -292,14 +312,8 @@ if [ "$DEPLOY_INGRESS" = "true" ]; then
         log_step "ArgoCD Ingress 설정 배포..."
         kubectl apply -f argocd/dev-ingress.yaml
         log_success "ArgoCD Ingress 설정 배포 완료"
-    fi
-    
-    # Kong Ingress 배포 (스크립트가 있는 경우)
-    if [ -f "scripts/deploy-develop-ingress.sh" ]; then
-        log_step "Kong Ingress 규칙 배포..."
-        chmod +x scripts/deploy-develop-ingress.sh
-        ./scripts/deploy-develop-ingress.sh
-        log_success "Kong Ingress 규칙 배포 완료"
+    else
+        log_error "argocd/dev-ingress.yaml 파일을 찾을 수 없습니다."
     fi
 fi
 
@@ -359,7 +373,7 @@ echo ""
 
 if [ -n "$KONG_EXTERNAL_IP" ] && [ "$KONG_EXTERNAL_IP" != "대기중" ]; then
     log_info "🌍 API 엔드포인트 테스트:"
-    echo -e "${PURPLE}     curl -i http://${KONG_EXTERNAL_IP}/api/users/health${NC}"
+    echo -e "${PURPLE}     curl -i http://${KONG_EXTERNAL_IP}/api/user/health${NC}"
     echo -e "${PURPLE}     curl -i http://${KONG_EXTERNAL_IP}/api/community/health${NC}"
 fi
 

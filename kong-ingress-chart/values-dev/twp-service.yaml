@@ -8,5 +8,11 @@ service:
 paths:
   - path: /api/party
   - path: /api/chat
+  - path: /api/twp/health
 
 pathType: ImplementationSpecific
+
+annotations:
+  konghq.com/path-regex: "^/api/twp/(.*)$"
+  konghq.com/rewrite: "/$1"
+  

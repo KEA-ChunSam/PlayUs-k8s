@@ -16,7 +16,7 @@ spec:
       # values-dev/community-service.yaml → ingress-community-service
       name: 'ingress-{{path.basename}}'
       namespace: argocd
-    spec:
+    spec: 
       project: default
       source:
         repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
