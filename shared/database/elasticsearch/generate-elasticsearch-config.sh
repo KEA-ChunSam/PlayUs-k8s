@@ -22,39 +22,43 @@ if [ ! -f "$SEALED_SECRETS_CERT" ]; then
   exit 1
 fi
 
-# dev-db 네임스페이스와 elasticsearch-config라는 이름의 ConfigMap 생성 예정
+# dev-db 네임스페이스와 elasticsearch-config라는 이름의 Secret 생성 예정
 ELASTICSEARCH_IP="$1"
 NAMESPACE="dev-db"
-CONFIGMAP_NAME="elasticsearch-config"
+SECRET_NAME="elasticsearch-config"
 
-echo "🔐 Elasticsearch IP ConfigMap을 위한 SealedSecret 생성 중..."
-echo "📍 IP 주소: ${ELASTICSEARCH_IP}"
+# IP 주소를 base64로 인코딩
+ELASTICSEARCH_IP_B64=$(echo -n "$ELASTICSEARCH_IP" | base64)
 
-# 임시 ConfigMap 생성
-cat << EOF > /tmp/elasticsearch-configmap.yaml
+echo "🔐 Elasticsearch IP Secret을 위한 SealedSecret 생성 중..."
+echo "📍 IP 주소: ${ELASTICSEARCH_IP} (base64: ${ELASTICSEARCH_IP_B64})"
+
+# 임시 Secret 생성
+cat << EOF > /tmp/elasticsearch-secret.yaml
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
-  name: ${CONFIGMAP_NAME}
+  name: ${SECRET_NAME}
   namespace: ${NAMESPACE}
+type: Opaque
 data:
-  elasticsearch-ip: "${ELASTICSEARCH_IP}"
+  elasticsearch-ip: ${ELASTICSEARCH_IP_B64}
 EOF
 
 # SealedSecret으로 변환
-kubeseal --cert "$SEALED_SECRETS_CERT" -f /tmp/elasticsearch-configmap.yaml -w ./sealed-configmap.yaml
+kubeseal --cert "$SEALED_SECRETS_CERT" -f /tmp/elasticsearch-secret.yaml -w ./sealed-configmap.yaml
 
 # 임시 파일 정리
-rm /tmp/elasticsearch-configmap.yaml
+rm /tmp/elasticsearch-secret.yaml
 
 echo "✅ SealedSecret이 생성되었습니다: sealed-configmap.yaml"
-echo "💡 ConfigMap 방식으로 Base64 인코딩 이슈가 해결되었습니다."
+echo "💡 Secret을 사용하여 보안이 강화되었습니다."
 echo "🚀 이제 Git에 안전하게 커밋하고 ArgoCD가 자동 배포할 수 있습니다."
 
 # 디버깅용 정보 출력
 echo ""
 echo "📋 생성된 리소스 정보:"
-echo "   - Type: ConfigMap (SealedSecret으로 암호화됨)"
-echo "   - Name: ${CONFIGMAP_NAME}"
+echo "   - Type: Secret (SealedSecret으로 암호화됨)"
+echo "   - Name: ${SECRET_NAME}"
 echo "   - Namespace: ${NAMESPACE}"
-echo "   - IP Field: data.elasticsearch-ip"
+echo "   - IP Field: data.elasticsearch-ip (base64 인코딩됨)"
