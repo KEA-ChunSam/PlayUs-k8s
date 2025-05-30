@@ -10,8 +10,16 @@ NAMESPACE="dev-twp-service"
 ENV_FILE=".env.secret"
 SECRET_FILE="secret.yaml"
 SEALED_SECRET_FILE="../sealed-secret.yaml"
-CONTROLLER_NAMESPACE="kube-system"
-CONTROLLER_NAME="sealed-secrets-controller"
+
+# 프로젝트 루트 디렉토리 찾기
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+SEALED_SECRETS_CERT="${PROJECT_ROOT}/sealed-secrets-public.pem"
+
+if [ ! -f "$SEALED_SECRETS_CERT" ]; then
+  echo "❌ 오류: sealed-secrets-public.pem 파일을 찾을 수 없습니다: $SEALED_SECRETS_CERT"
+  exit 1
+fi
 
 echo "======================================="
 echo "Sealed Secret Generation Script (Mac/Linux)"
@@ -34,8 +42,7 @@ kubectl create secret generic $SECRET_NAME \
 # Encrypt the Secret using kubeseal
 echo "[2/3] Encrypting the Secret with kubeseal..."
 kubeseal \
-  --controller-namespace $CONTROLLER_NAMESPACE \
-  --controller-name $CONTROLLER_NAME \
+  --cert "$SEALED_SECRETS_CERT" \
   --format yaml < $SECRET_FILE > $SEALED_SECRET_FILE
 
 # Done
