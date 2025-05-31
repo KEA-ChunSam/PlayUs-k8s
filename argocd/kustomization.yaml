@@ -8,6 +8,4 @@ resources:
   - dev-ingress.yaml
   - dev-applicationset.yaml
   - dev-database.yaml
-
-patchesStrategicMerge:
-  - dev-argocd-tolerations-patch.yaml
+  
