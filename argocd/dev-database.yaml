@@ -9,16 +9,22 @@ spec:
         elements:
           - name: dev-mysql
             path: shared/database/mysql
+            namespace: dev-db
           - name: dev-mongo-chat
             path: shared/database/mongo-chat
+            namespace: dev-db
           - name: dev-mongo-read
             path: shared/database/mongo-read
+            namespace: dev-db
           - name: dev-elasticsearch
             path: shared/database/elasticsearch
-          - name: dev-s3
-            path: shared/database/s3
+            namespace: dev-db
           - name: dev-redis-token
             path: shared/database/redis-token
+            namespace: dev-db
+          - name: postgres-kong
+            path: shared/database/postgres-kong
+            namespace: prod-db
   template:
     metadata:
       name: '{{name}}'
@@ -30,7 +36,7 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: dev-db
+        namespace: '{{namespace}}'
       syncPolicy:
         automated:
           prune: true
