@@ -8,8 +8,9 @@ metadata:
     {{- if .Values.host }}
     kubernetes.io/ingress.host: {{ .Values.host }}
     {{- end }}
-    konghq.com/rewrite: "/$1"
-    konghq.com/path-regex: "^/api/(.*)$"
+    {{- if .Values.stripPath }}
+    konghq.com/strip-path: "true"
+    {{- end }}
     {{- with .Values.customAnnotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

@@ -6,13 +6,14 @@ service:
 
 # 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:
-  - path: /api/party
-  - path: /api/chat
-  - path: /api/twp/health
+  - path: /twp/party
+  - path: /twp/chat
+  - path: /twp/health
 
 pathType: ImplementationSpecific
 
+stripPath: true
+
 annotations:
-  konghq.com/path-regex: "^/api/twp/(.*)$"
-  konghq.com/rewrite: "/$1"
+  kubernetes.io/ingress.class: kong
   

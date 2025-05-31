@@ -6,12 +6,13 @@ service:
 
 # 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:
-  - path: /api/search
-  - path: /api/search/health
+  - path: /search/search
+  - path: /search/health
 
 pathType: ImplementationSpecific
 
+stripPath: true
+
 annotations:
-  konghq.com/path-regex: "^/api/search/(.*)$"
-  konghq.com/rewrite: "/$1"
+  kubernetes.io/ingress.class: kong
   

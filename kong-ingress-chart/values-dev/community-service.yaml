@@ -4,15 +4,16 @@ service:
   name: community-service
   port: 80
 
-# 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:
-  - path: /api/post
-  - path: /api/comment
-  - path: /api/live-match-diary
-  - path: /api/community/health
+  - path: /community/post
+  - path: /community/comment
+  - path: /community/live-match-diary
+  - path: /community/health
 
 pathType: ImplementationSpecific
 
+stripPath: true
+
 annotations:
-  konghq.com/path-regex: "^/api/community/(.*)$"
-  konghq.com/rewrite: "/$1"
+  kubernetes.io/ingress.class: kong
+  

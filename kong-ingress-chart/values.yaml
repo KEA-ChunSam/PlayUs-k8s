@@ -15,5 +15,8 @@ service:
 paths:
   - path: /api/default
 
+# stripPath 설정 (true로 설정 시 경로 접두사 제거)
+stripPath: false
+
 # 추가 어노테이션
 customAnnotations: {}
