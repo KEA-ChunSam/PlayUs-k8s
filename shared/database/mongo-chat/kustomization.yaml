@@ -5,20 +5,3 @@ namespace: dev-db
 
 resources:
   - dev-mongo-chat.yaml
-  - sealed-configmap.yaml
-
-# kustomize build 혹은 kubectl apply -k . 시점에 IP가 자동으로 주입됨
-replacements:
-  - source:
-      kind: ConfigMap
-      name: mongo-chat-config
-      fieldPath: data.mongo-chat-ip
-    targets:
-      - select:
-          kind: Endpoints
-          name: dev-mongo-chat
-        fieldPaths:
-          - subsets[0].addresses[0].ip
-
-generatorOptions:
-  disableNameSuffixHash: true
