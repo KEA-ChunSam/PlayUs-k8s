@@ -15,6 +15,6 @@ metadata:
   namespace: dev-db
 subsets:
   - addresses:
-      - ip: ""
+      - ip: "129.154.50.74"
     ports:
       - port: 9200
