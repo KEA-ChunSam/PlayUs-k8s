@@ -1,0 +1,16 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: mongo-read-config
+  namespace: dev-db
+spec:
+  encryptedData:
+    mongo-read-ip: AgBQA6USg8p6a/0Ttf/FGWRVMLUxbJ2frIZF8meY1xLAobXqFdNWUq9ISUvyKmlOy6KmVel12DQIevedf7G2gZ8H1snYBH+s7Azddjaf3kjObOPMb5WRnNxduB1bT20PxDenAAcPYHJ4vJOp18ycmt6/bNA4cSHfMhIYakyhsXCptfv1zJy6/6uiVeEdH2O7saJESJVTqfhSxJ0jeU+jCRPpaWbmxifzM0Xdvc1dj3otxKAIMeoOn9dcL3aGx71sEhJVfLsEwDGAvVm7R4EBEoUfqtOac5/g46Vgkjxy9QQlR9AVRn13x8YYOP0dAVUOPDu4O2G1spmfqQnRvYWOxJ/LEVEoYu57NDDjYHx+Uvue+HIhhIjN0HJbLo59NL21xwseuHS31FNNoh3+3Oi6CixdLC1ygLY/c3RR7wB/cqvornc91r9GkzCQEoqe9BdDpjOgIbUObMyOAjmrCdLtF0svffTuQcuyghXOi7vaHYiRKx+LJeHGsk+d80jXsDU5Qic6wmYdSoVFiGsmabwz3iVjxX0iF4BVrLOpLXPp7/bCfBwDj6Sp7vIj/8TordSQO06V2i/vBQ8UnkhLDswmhGYIPt1tA4W2zNa4h7Mt5V/5PLDnnfJtRrTw3XfMQFoQJMLViqu//ubj3lJlXv3J2FcxPcpgLpMty3BXho0EBOxQohS4KqzUtLdZhzYWbVChHWe9hE0u6tk3nEEYdU+/
+  template:
+    metadata:
+      creationTimestamp: null
+      name: mongo-read-config
+      namespace: dev-db
+    type: Opaque

@@ -1,0 +1,16 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: mysql-config
+  namespace: dev-db
+spec:
+  encryptedData:
+    mysql-ip: AgCL/HlhCNnPCCinKycFV+wvIAYREfCJBHW99h/u9R+7pLAI6ynBHVMFrX2YkeBAWWY12S5sBVLbvJa1NUSgKF9w14qa5amft4CqP9heoc7+PuzrViDDyCQCc6I1luYSVLYnQyzcHXtHmE4qZo7lOC3kCaYle9WrjBgOMUOPQ4CIBvQ+TdvQxUciiieNovDMy4Y0ZAjng8qQiCkbrThr7KQ9SHIOzr85Is7KPLkargPqJUfAy2Cd7Kue/rGx49Ggx3Jh7XTaRwCvPwyt5U7oB1misZNLQ8B7TiwZzrr4oxZKayH4JQCfbsDD0eWvJ2knAWM/9dnSUe6k2w4pW2pllL/E3qHIXkBja2k4G7w8mLOx8ZOrz35Gos+gAMkS3Nd60Oc3c5v54L0gIYEFTMrLDNZl1+grDvcRqc6B1TB8+59aCttpQ81qrRMN+pShKF5wBO+Ov0N+JdY9VGGMX4wwPz974cioisskro2Ze1XFgLN1gIBLNwhN2sd/Eq7LuhtMev2+ZUrPMk/GbXJtOeltUjEEYSCvVr0EiVwwz/P/Ok8cqZuGbhvqtdGD2z7CXASYGk6P/hsJioxjzKlKSm9T3YyqTp8LvwSUFTdb2kyBIiSss1xH5jB1uin3AilBAUUAfj0YWDFCeFpDm5bcGOne9tWOHaAbZCwy0DFxPjwUpaNchO1pRcEwlMA0dOohyT7dubZEL1fzy25k3nSVk/8p
+  template:
+    metadata:
+      creationTimestamp: null
+      name: mysql-config
+      namespace: dev-db
+    type: Opaque

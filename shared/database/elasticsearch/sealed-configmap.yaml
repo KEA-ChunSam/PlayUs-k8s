@@ -1,0 +1,16 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: elasticsearch-config
+  namespace: dev-db
+spec:
+  encryptedData:
+    elasticsearch-ip: AgA35SKUCL6IJOP9A99u/CmQADj11xXNM8MqUHxNBzfVvgNPrpzwMMbuz7A3If0lNXuRX5mI7lVML5uZTt1jeWrsKOc+Imu/r0YcnZ2OCCIuGHqBcwaGxuj2YGobGQT2jwde0LvpIuhVUCJbua2gaZztf1Xd9aeLlLIx1cvhl+Bt6aNHjwp3RLbv6aL19bi8VjJWAS8Qa37p9IotAs441R8d8QpdOs9cKVCZiWnsCFyCYiNptWmnuQQ14CARi73/0aTk1/ROwHlJjifLKZsMR0MFReVpJ2LUtUmMh9IFv023avB1RDHewqsRwMOFdfJCQ+q3k5IjoR4yGh0weESHDZZI2MWZjc8PduJ2iCkCmMZpzHa09INk0R3kJea/UNAk9u3jz0r78HDEqHEnoVdm5cipgBCuGcagf5vaGbqaJKiBL92vcGLKxt3e/frXr7ldqotAvIvdLqf15pjeifD1ms4IhOb/uTxLpiJlJfvc5AVpSRzaKPc9d2EBXvb8rkrLlJ2+I3SghpwmbpxX7vKGg8L1SLfkH1wVc+Gy2+v3pmarablsoqoflIsGY+YZL+ugZ9TiUVVhf96GNrZyWE0KjTO3qpf6A/Sx5Ij1yKw6/Qbt2oJ3q1q5+xtCzQgHcCvdW4qwx00l2mDHyc/XKANjkU8n0rxXX2eC1UoWt3WGB6nkD8aJWrwiIT13o/9q0I0xaGHoCtHua1Ek6QLaPCne
+  template:
+    metadata:
+      creationTimestamp: null
+      name: elasticsearch-config
+      namespace: dev-db
+    type: Opaque

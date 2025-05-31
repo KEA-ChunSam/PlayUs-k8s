@@ -1,0 +1,16 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: mongo-chat-config
+  namespace: dev-db
+spec:
+  encryptedData:
+    mongo-chat-ip: AgA6YPBCG1koYmzeQj4is+5m4C5IHoLsh4bixujNvD+8vTdR8t91YVY0ystRnUL8ltoyylid4bFIX1H9CQtlff12Tow96d6VeJ0+oAK1+tF6ZriThhuBgAJc39dx4UHBPoWlzJmiS0z1/CpfizprOi8hTr7+AxvdWNFzTtAIMT6JlNeVFgCPrcUCKOM/RMbUDw682+zAdyAXmziq6jU9AXCUeoUs0uwBp7z3mpQPT609hS6RAxjkuPz4NId2CI0PFuxulGcEXtJjPzjm+ShnRN2SVyH5qBbiWb9/AFNbRVvs+q+z35QUQt6uHRTC3Lytciyw8MCLm6vI9DlxpEFxJvAXkXL3YGYbrJvRUxZks6MLO/I+RRkM43xEdcLJPmX1C+EUuKZLe0PGyT25ndXErePykmpK46MZVc6L9HmmDB8oTty6nxdv/Jil3YbV4xaVMUl8jkpTHOoxxdEf/SZ5+VhSrO4hlKoeLOyQexl/7s/i+iGod5KMpjbyOws8KOry28ZKWlcrLycOQ08WAe3Bu5AQyFISVPZjF89It+T1v6ZM1yBBcjG4+/3P5Xblfh00HUxcO47uauZvtr2E+Lg+8xMHSdygDgeRdsw9GwStwZOKV1o4GaSXeLt9pRk8q2ocyykVGYxDqZw5HnJpl7ZUCUZaVv0fzheZy4ZNAVqtJMK5BuTci03JVwppPRhDXnDzeQVvtV/Wj9iLTPDDHwI1
+  template:
+    metadata:
+      creationTimestamp: null
+      name: mongo-chat-config
+      namespace: dev-db
+    type: Opaque
