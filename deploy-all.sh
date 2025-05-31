@@ -170,56 +170,13 @@ if [ "$DEPLOY_ARGOCD" = "true" ]; then
     fi
 fi
 
-# === 3. Kong Ingress Controller 설정 ===
-if [ "$DEPLOY_KONG" = "true" ]; then
-    log_header "🌐 Kong Ingress Controller 설정"
-
-    # develop → dev 매핑
-    if [ "$ENVIRONMENT" = "develop" ]; then
-        GATEWAY_NAMESPACE="dev-gateway"
-    else
-        GATEWAY_NAMESPACE="${ENVIRONMENT}-gateway"
-    fi
-
-    if kubectl get namespace "$GATEWAY_NAMESPACE" > /dev/null 2>&1 && helm list -n "$GATEWAY_NAMESPACE" | grep -q ingress-kong; then
-        log_success "Kong이 이미 설치되어 있습니다."
-    else
-        log_step "Kong Ingress Controller 설치 중..."
-
-        helm repo add kong https://charts.konghq.com > /dev/null 2>&1 || true
-        helm repo update > /dev/null 2>&1
-
-        if [ -f "scripts/deploy-kong.sh" ]; then
-            chmod +x scripts/deploy-kong.sh
-            ./scripts/deploy-kong.sh "$ENVIRONMENT"
-        else
-            # 기본 설치 방법
-            kubectl create namespace "$GATEWAY_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
-            helm upgrade --install ingress-kong kong/kong \
-                --namespace "$GATEWAY_NAMESPACE" \
-                --set ingressController.enabled=true \
-                --set ingressController.watchNamespace="" \
-                --set env.database=postgres \
-                --set postgresql.enabled=true \
-                --set postgresql.auth.username=kong \
-                --set postgresql.auth.password=kong \
-                --set postgresql.auth.database=kong \
-                --set env.pg_user=kong \
-                --set env.pg_password=kong \
-                --set env.pg_database=kong \
-                --set proxy.type=LoadBalancer
-        fi
-        log_success "Kong Ingress Controller 설치 완료"
-    fi
-fi
-
-# === 4. 네임스페이스 생성 ===
+# === 3. 네임스페이스 생성 ===
 log_header "📁 네임스페이스 생성"
 log_step "필요한 네임스페이스들 생성 중..."
 kubectl apply -f argocd/dev-namespaces.yaml
 log_success "네임스페이스 생성 완료"
 
-# === 5. 데이터베이스 IP 설정 (SealedSecret 생성) ===
+# === 4. 데이터베이스 IP 설정 (SealedSecret 생성) ===
 if [ "$DEPLOY_DATABASES" = "true" ]; then
     log_header "🗄️ 데이터베이스 IP SealedSecret 생성"
     
@@ -276,7 +233,7 @@ if [ "$DEPLOY_DATABASES" = "true" ]; then
     fi
 fi
 
-# === 6. ArgoCD 애플리케이션 배포 ===
+# === 5. ArgoCD 애플리케이션 배포 ===
 if [ "$DEPLOY_SERVICES" = "true" ]; then
     log_header "🚀 ArgoCD 애플리케이션 배포"
     
@@ -286,9 +243,10 @@ if [ "$DEPLOY_SERVICES" = "true" ]; then
         kubectl apply -f argocd/dev-database.yaml
         log_success "데이터베이스 ApplicationSet 배포 완료"
         
-        # 잠시 대기
-        log_step "데이터베이스 배포 대기 중 (10초)..."
-        sleep 10
+        # PostgreSQL이 준비될 때까지 대기
+        log_step "PostgreSQL 준비 대기 중..."
+        kubectl wait --for=condition=ready pod -l app=postgres-kong -n prod-db --timeout=300s
+        log_success "PostgreSQL 준비 완료"
     fi
     
     # 서비스 시크릿 생성
@@ -311,6 +269,49 @@ if [ "$DEPLOY_SERVICES" = "true" ]; then
         log_step "메인 서비스 ApplicationSet 배포..."
         kubectl apply -f argocd/dev-applicationset.yaml
         log_success "메인 서비스 ApplicationSet 배포 완료"
+    fi
+fi
+
+# === 6. Kong Ingress Controller 설정 ===
+if [ "$DEPLOY_KONG" = "true" ]; then
+    log_header "🌐 Kong Ingress Controller 설정"
+
+    # develop → dev 매핑
+    if [ "$ENVIRONMENT" = "develop" ]; then
+        GATEWAY_NAMESPACE="dev-gateway"
+    else
+        GATEWAY_NAMESPACE="${ENVIRONMENT}-gateway"
+    fi
+
+    if kubectl get namespace "$GATEWAY_NAMESPACE" > /dev/null 2>&1 && helm list -n "$GATEWAY_NAMESPACE" | grep -q ingress-kong; then
+        log_success "Kong이 이미 설치되어 있습니다."
+    else
+        log_step "Kong Ingress Controller 설치 중..."
+
+        helm repo add kong https://charts.konghq.com > /dev/null 2>&1 || true
+        helm repo update > /dev/null 2>&1
+
+        if [ -f "scripts/deploy-kong.sh" ]; then
+            chmod +x scripts/deploy-kong.sh
+            ./scripts/deploy-kong.sh "production"
+        else
+            # 기본 설치 방법
+            kubectl create namespace "$GATEWAY_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+            helm upgrade --install ingress-kong kong/kong \
+                --namespace "$GATEWAY_NAMESPACE" \
+                --set ingressController.enabled=true \
+                --set ingressController.watchNamespace="" \
+                --set env.database=postgres \
+                --set postgresql.enabled=true \
+                --set postgresql.auth.username=kong \
+                --set postgresql.auth.password=kong \
+                --set postgresql.auth.database=kong \
+                --set env.pg_user=kong \
+                --set env.pg_password=kong \
+                --set env.pg_database=kong \
+                --set proxy.type=LoadBalancer
+        fi
+        log_success "Kong Ingress Controller 설치 완료"
     fi
 fi
 
