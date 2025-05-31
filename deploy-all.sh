@@ -174,12 +174,8 @@ fi
 if [ "$DEPLOY_KONG" = "true" ]; then
     log_header "🌐 Kong Ingress Controller 설정"
 
-    # develop → dev 매핑
-    if [ "$ENVIRONMENT" = "develop" ]; then
-        GATEWAY_NAMESPACE="dev-gateway"
-    else
-        GATEWAY_NAMESPACE="${ENVIRONMENT}-gateway"
-    fi
+    # 항상 dev-gateway 사용
+    GATEWAY_NAMESPACE="dev-gateway"
 
     if kubectl get namespace "$GATEWAY_NAMESPACE" > /dev/null 2>&1 && helm list -n "$GATEWAY_NAMESPACE" | grep -q ingress-kong; then
         log_success "Kong이 이미 설치되어 있습니다."
@@ -200,10 +196,8 @@ if [ "$DEPLOY_KONG" = "true" ]; then
                 --set ingressController.enabled=true \
                 --set ingressController.watchNamespace="" \
                 --set env.database=postgres \
-                --set postgresql.enabled=true \
-                --set postgresql.auth.username=kong \
-                --set postgresql.auth.password=kong \
-                --set postgresql.auth.database=kong \
+                --set postgresql.enabled=false \
+                --set env.pg_host=postgres-kong.dev-db.svc.cluster.local \
                 --set env.pg_user=kong \
                 --set env.pg_password=kong \
                 --set env.pg_database=kong \
@@ -341,10 +335,9 @@ if kubectl get applications -n argocd > /dev/null 2>&1; then
     kubectl get applications -n argocd --no-headers | awk '{printf "    🔹 %-30s: %s\n", $1, $3}' || true
 fi
 
-# Kong 외부 IP 확인
-KONG_NAMESPACE="${ENVIRONMENT}-gateway"
-if kubectl get svc -n "$KONG_NAMESPACE" > /dev/null 2>&1; then
-    KONG_EXTERNAL_IP=$(kubectl get svc -n "$KONG_NAMESPACE" ingress-kong-kong-proxy -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "대기중")
+# Kong 외부 IP 확인 (항상 dev-gateway 사용)
+if kubectl get svc -n dev-gateway > /dev/null 2>&1; then
+    KONG_EXTERNAL_IP=$(kubectl get svc -n dev-gateway ingress-kong-kong-proxy -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "대기중")
     log_info "Kong 프록시 외부 IP: ${KONG_EXTERNAL_IP}"
 fi
 

@@ -26,13 +26,13 @@ if [[ "$ENV" == "develop" ]]; then
 elif [[ "$ENV" == "production" ]]; then
   echo "🚀 Deploying Kong for PROD environment..."
   helm upgrade --install ingress-kong kong/kong \
-    --namespace prod-gateway \
+    --namespace dev-gateway \
     --create-namespace \
     --set ingressController.enabled=true \
     --set ingressController.watchNamespace="" \
     --set env.database=postgres \
     --set postgresql.enabled=false \
-    --set env.pg_host=postgres-kong.prod-db.svc.cluster.local \
+    --set env.pg_host=postgres-kong.dev-db.svc.cluster.local \
     --set env.pg_user=kong \
     --set env.pg_password=kong \
     --set env.pg_database=kong \

@@ -24,7 +24,7 @@ spec:
             namespace: dev-db
           - name: postgres-kong
             path: shared/database/postgres-kong
-            namespace: prod-db
+            namespace: dev-db
   template:
     metadata:
       name: '{{name}}'
