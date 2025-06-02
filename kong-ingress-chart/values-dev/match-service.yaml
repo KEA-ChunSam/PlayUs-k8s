@@ -7,7 +7,7 @@ services:
 
     paths:
       - path: /match/match
-      - path: /match/health
+      - path: /match/actuator
 
     pathType: ImplementationSpecific
 
