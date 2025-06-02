@@ -8,6 +8,7 @@ service:
 paths:
   - path: /search/search
   - path: /search/health
+  - path: /search/actuator/health
 
 pathType: ImplementationSpecific
 
