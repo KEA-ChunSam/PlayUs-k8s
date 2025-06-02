@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
         - name: search-service
-          image: yukyung0/playus-search-service:12-6d94457
+          image: yukyung0/playus-search-service:13-9d36b57
