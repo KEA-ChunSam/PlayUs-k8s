@@ -207,6 +207,7 @@ if [ "$DEPLOY_SERVICES" = "true" ]; then
     log_header "🚀 ArgoCD 애플리케이션 배포"
     
     # 데이터베이스 ApplicationSet 배포
+    # Kong에서 DB를 사용한다면, postgres-kong 따로 배포 필요
     if [ "$DEPLOY_DATABASES" = "true" ] && [ -f "argocd/dev-database.yaml" ]; then
         log_step "데이터베이스 ApplicationSet 배포..."
         kubectl apply -f argocd/dev-database.yaml

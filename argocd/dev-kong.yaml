@@ -1,0 +1,35 @@
+## argocd/kong-application.yaml
+#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: kong-ingress-gateway
+#  namespace: argocd
+#spec:
+#  project: default
+#  sources:
+#    # 1. Kong Helm Chart
+#    - repoURL: https://charts.konghq.com
+#      chart: kong
+#      targetRevision: "2.48.0"
+#      helm:
+#        valueFiles:
+#          - $values/manifests/kong-values.yaml
+#    # 2. Values 파일 참조용
+#    - repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
+#      targetRevision: HEAD
+#      ref: values
+#    # 3. Secret 파일 적용용
+#    - repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
+#      targetRevision: HEAD
+#      path: manifests
+#      directory:
+#        include: "kong-postgres-secret.yaml"
+#  destination:
+#    server: https://kubernetes.default.svc
+#    namespace: dev-gateway
+#  syncPolicy:
+#    automated:
+#      prune: false
+#      selfHeal: true
+#    syncOptions:
+#      - CreateNamespace=true

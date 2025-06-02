@@ -8,4 +8,4 @@ resources:
   - dev-ingress.yaml
   - dev-applicationset.yaml
   - dev-database.yaml
-  
+#  - dev-kong.yaml

@@ -22,6 +22,8 @@ spec:
           - name: dev-redis-token
             path: shared/database/redis-token
             namespace: dev-db
+#          - name: dev-postgres-kong
+#            path: shared/database/postgres-kong
   template:
     metadata:
       name: '{{name}}'
