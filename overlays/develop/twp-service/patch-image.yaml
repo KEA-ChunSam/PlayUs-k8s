@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
         - name: twp-service
-          image: yukyung0/playus-twp-service:29-0d9ef9f
+          image: yukyung0/playus-twp-service:30-eac092f
