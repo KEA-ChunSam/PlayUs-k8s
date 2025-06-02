@@ -1,45 +1,48 @@
+# templates/ingress.yaml
+{{- range $serviceName, $config := .Values.services }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "kong-ingress.name" . }}
-  namespace: {{ .Values.namespace }}
+  name: {{ $serviceName }}-ingress
+  namespace: {{ $config.namespace }}
   annotations:
     kubernetes.io/ingress.class: kong
-    {{- if .Values.host }}
-    kubernetes.io/ingress.host: {{ .Values.host }}
-    {{- end }}
-    {{- if .Values.stripPath }}
+    {{- if $config.stripPath | default $.Values.stripPath }}
     konghq.com/strip-path: "true"
     {{- end }}
-    {{- with .Values.customAnnotations }}
-    {{- toYaml . | nindent 4 }}
+    {{- if $config.annotations }}
+    {{- toYaml $config.annotations | nindent 4 }}
+    {{- end }}
+    {{- if $config.customAnnotations }}
+    {{- toYaml $config.customAnnotations | nindent 4 }}
     {{- end }}
 spec:
   rules:
-    {{- if .Values.host }}
-    - host: {{ .Values.host }}
+  {{- if $config.host }}
+    - host: {{ $config.host }}
       http:
         paths:
-          {{- range .Values.paths }}
+      {{- range $config.paths }}
           - path: {{ .path }}
-            pathType: {{ $.Values.pathType }}
+            pathType: {{ $config.pathType | default $.Values.pathType | default "ImplementationSpecific" }}
             backend:
               service:
-                name: {{ $.Values.service.name }}
+                name: {{ $config.service.name }}
                 port:
-                  number: {{ $.Values.service.port }}
-          {{- end }}
-    {{- else }}
+                  number: {{ $config.service.port }}
+      {{- end }}
+  {{- else }}
     - http:
         paths:
-          {{- range .Values.paths }}
+      {{- range $config.paths }}
           - path: {{ .path }}
-            pathType: {{ $.Values.pathType }}
+            pathType: {{ $config.pathType | default $.Values.pathType | default "ImplementationSpecific" }}
             backend:
               service:
-                name: {{ $.Values.service.name }}
+                name: {{ $config.service.name }}
                 port:
-                  number: {{ $.Values.service.port }}
-          {{- end }}
-    {{- end }} 
-          
+                  number: {{ $config.service.port }}
+      {{- end }}
+  {{- end }}
+{{- end }}

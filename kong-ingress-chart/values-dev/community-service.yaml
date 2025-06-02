@@ -1,8 +1,9 @@
-namespace: dev-community-service
-
-service:
-  name: community-service
-  port: 80
+services:
+  community-service:
+    namespace: dev-community-service
+    service:
+      name: community-service
+      port: 80
 
 paths:
   - path: /community/post
@@ -13,7 +14,3 @@ paths:
 pathType: ImplementationSpecific
 
 stripPath: true
-
-annotations:
-  kubernetes.io/ingress.class: kong
-  

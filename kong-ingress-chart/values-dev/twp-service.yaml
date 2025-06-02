@@ -4,6 +4,13 @@ service:
   name: twp-service
   port: 80
 
+services:
+  twp-service:
+    namespace: dev-twp-service
+    service:
+      name: twp-service
+      port: 80
+
 # 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:
   - path: /twp/party
