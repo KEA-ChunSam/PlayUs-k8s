@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
         - name: match-service
-          image: yukyung0/playus-match-service:8-50b4e85
+          image: yukyung0/playus-match-service:9-f5bb8b5
