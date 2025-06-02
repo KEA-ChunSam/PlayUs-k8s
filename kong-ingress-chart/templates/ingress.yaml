@@ -8,7 +8,9 @@ metadata:
   namespace: {{ $config.namespace }}
   annotations:
     kubernetes.io/ingress.class: kong
-    {{- if $config.stripPath | default $.Values.stripPath }}
+    {{- if (hasKey $config "stripPath") }}
+    konghq.com/strip-path: "{{ $config.stripPath }}"
+    {{- else if $.Values.stripPath }}
     konghq.com/strip-path: "true"
     {{- end }}
     {{- if $config.annotations }}

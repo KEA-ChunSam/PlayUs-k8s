@@ -1,22 +1,10 @@
-# Kong Ingress Chart 기본 설정
-namespace: default
-host: null
+# 글로벌 기본값
+global:
+  namespace: ingress-system
+  pathType: Prefix
+  stripPath: false
+  annotations:
+    kubernetes.io/ingress.class: kong
 
-# 경로 타입 설정 (Prefix 또는 ImplementationSpecific)
-# Kong의 정규식 기반 rewrite를 사용할 때는 ImplementationSpecific 권장
-pathType: ImplementationSpecific
-
-# 서비스 설정
-service:
-  name: default-service
-  port: 80
-
-# 경로 설정 (rewrite는 Ingress level에서 처리)
-paths:
-  - path: /api/default
-
-# stripPath 설정 (true로 설정 시 경로 접두사 제거)
-stripPath: false
-
-# 추가 어노테이션
-customAnnotations: {}
+# 서비스별 설정을 위한 빈 객체
+services: {}

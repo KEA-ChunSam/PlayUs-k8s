@@ -4,12 +4,11 @@ services:
     service:
       name: community-service
       port: 80
-
     paths:
-      - path: /community/post
-      - path: /community/comment
-      - path: /community/live-match-diary
-      - path: /community/health
-
-    pathType: ImplementationSpecific
+      - path: /community
+    pathType: Prefix
     stripPath: true
+
+    # Kong 어노테이션 명시적 추가
+    customAnnotations:
+      konghq.com/preserve-host: "true"
