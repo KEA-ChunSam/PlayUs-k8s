@@ -157,24 +157,13 @@ if [ "$DEPLOY_ARGOCD" = "true" ]; then
         fi
         log_success "ArgoCD 설치 완료"
     fi
-
-    # Repo Server SecurityContext 설정
-    log_step "ArgoCD Repo Server 권한 설정..."
-    if [ -f "argocd/dev-argocd-repo-server.yaml" ]; then
-        kubectl apply -f argocd/dev-argocd-repo-server.yaml
-        kubectl rollout restart deployment argocd-repo-server -n argocd
-        kubectl wait --for=condition=available --timeout=300s deployment/argocd-repo-server -n argocd
-        log_success "ArgoCD Repo Server 권한 설정 완료"
-    else
-        log_warning "argocd/dev-argocd-repo-server.yaml 파일을 찾을 수 없습니다."
-    fi
 fi
 
 # === 3. Kong Ingress Controller 설정 ===
 if [ "$DEPLOY_KONG" = "true" ]; then
     log_header "🌐 Kong Ingress Controller 설정"
 
-    # 항상 dev-gateway 사용
+    # 항상 dev-gateway 사용 (임시)
     GATEWAY_NAMESPACE="dev-gateway"
 
     if kubectl get namespace "$GATEWAY_NAMESPACE" > /dev/null 2>&1 && helm list -n "$GATEWAY_NAMESPACE" | grep -q ingress-kong; then
@@ -213,68 +202,12 @@ log_step "필요한 네임스페이스들 생성 중..."
 kubectl apply -f argocd/dev-namespaces.yaml
 log_success "네임스페이스 생성 완료"
 
-# === 5. 데이터베이스 IP 설정 (SealedSecret 생성) ===
-if [ "$DEPLOY_DATABASES" = "true" ]; then
-    log_header "🗄️ 데이터베이스 IP SealedSecret 생성"
-    
-    # kubeseal이 없으면 경고하고 건너뛰기
-    if ! command -v kubeseal &> /dev/null; then
-        log_warning "kubeseal이 설치되어 있지 않습니다. 데이터베이스 IP 설정을 건너뜁니다."
-        log_info "수동으로 각 데이터베이스 폴더에서 generate 스크립트를 실행해주세요."
-    else
-        # Mongo Chat IP 설정
-        if [ -f "shared/database/mongo-chat/generate-mongo-chat-config.sh" ]; then
-            log_step "Mongo Chat IP 설정..."
-            cd shared/database/mongo-chat
-            chmod +x generate-mongo-chat-config.sh
-            ./generate-mongo-chat-config.sh "$DB_IP"
-            cd ../../..
-            log_success "Mongo Chat IP 설정 완료"
-        fi
-        
-        # Mongo Read IP 설정  
-        if [ -f "shared/database/mongo-read/generate-mongo-read-config.sh" ]; then
-            log_step "Mongo Read IP 설정..."
-            cd shared/database/mongo-read
-            chmod +x generate-mongo-read-config.sh
-            ./generate-mongo-read-config.sh "$DB_IP"
-            cd ../../..
-            log_success "Mongo Read IP 설정 완료"
-        fi
-        
-        # MySQL IP 설정
-        if [ -f "shared/database/mysql/generate-mysql-config.sh" ]; then
-            log_step "MySQL IP 설정..."
-            cd shared/database/mysql
-            chmod +x generate-mysql-config.sh
-            ./generate-mysql-config.sh "$DB_IP"
-            cd ../../..
-            log_success "MySQL IP 설정 완료"
-        fi
-        
-        # Elasticsearch IP 설정
-        if [ -f "shared/database/elasticsearch/generate-elasticsearch-config.sh" ]; then
-            log_step "Elasticsearch IP 설정..."
-            cd shared/database/elasticsearch
-            chmod +x generate-elasticsearch-config.sh
-            ./generate-elasticsearch-config.sh "$DB_IP"
-            cd ../../..
-            log_success "Elasticsearch IP 설정 완료"
-        fi
-        
-        # 생성된 SealedSecret 파일 목록 출력
-        log_info "생성된 SealedSecret 파일들:"
-        find shared/database -name "sealed-configmap.yaml" -type f | while read file; do
-            log_info "  📝 $file"
-        done
-    fi
-fi
-
-# === 6. ArgoCD 애플리케이션 배포 ===
+# === 5. ArgoCD 애플리케이션 배포 ===
 if [ "$DEPLOY_SERVICES" = "true" ]; then
     log_header "🚀 ArgoCD 애플리케이션 배포"
     
     # 데이터베이스 ApplicationSet 배포
+    # Kong에서 DB를 사용한다면, postgres-kong 따로 배포 필요
     if [ "$DEPLOY_DATABASES" = "true" ] && [ -f "argocd/dev-database.yaml" ]; then
         log_step "데이터베이스 ApplicationSet 배포..."
         kubectl apply -f argocd/dev-database.yaml
@@ -308,7 +241,7 @@ if [ "$DEPLOY_SERVICES" = "true" ]; then
     fi
 fi
 
-# === 7. Ingress 설정 배포 ===
+# === 6. Ingress 설정 배포 ===
 if [ "$DEPLOY_INGRESS" = "true" ]; then
     log_header "🌐 Ingress 설정 배포"
     
@@ -322,7 +255,7 @@ if [ "$DEPLOY_INGRESS" = "true" ]; then
     fi
 fi
 
-# === 8. 배포 상태 확인 ===
+# === 7. 배포 상태 확인 ===
 log_header "📊 배포 상태 확인"
 
 # 잠시 대기 후 상태 확인
@@ -341,7 +274,7 @@ if kubectl get svc -n dev-gateway > /dev/null 2>&1; then
     log_info "Kong 프록시 외부 IP: ${KONG_EXTERNAL_IP}"
 fi
 
-# === 9. 완료 및 다음 단계 안내 ===
+# === 8. 완료 및 다음 단계 안내 ===
 log_header "✅ 배포 완료!"
 
 log_success "PlayUs 배포가 성공적으로 시작되었습니다!"

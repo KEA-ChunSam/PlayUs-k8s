@@ -1,0 +1,17 @@
+#env:
+#  database: postgres
+#  pg_database: kong
+#  pg_host: postgres-kong.dev-db.svc.cluster.local
+#  pg_user: kong
+#  pg_password:
+#    valueFrom:
+#      secretKeyRef:
+#        name: kong-postgres-secret
+#        key: password
+#ingressController:
+#  enabled: true
+#  watchNamespace: ""
+#postgresql:
+#  enabled: false
+#proxy:
+#  type: LoadBalancer
