@@ -4,10 +4,12 @@ services:
     service:
       name: match-service
       port: 80
-
     paths:
-      - path: /match/match
-      - path: /match/actuator
-
+      - path: /match
     pathType: Prefix
     stripPath: true
+
+    # Kong 어노테이션 명시적 추가
+    customAnnotations:
+      konghq.com/strip-path: "true"
+      konghq.com/preserve-host: "true"
