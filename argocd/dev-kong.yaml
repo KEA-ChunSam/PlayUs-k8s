@@ -18,7 +18,7 @@
 #    - repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
 #      targetRevision: HEAD
 #      ref: values
-#    # 3. Secret 파일 적용용
+#    # 3. Secret 파일 적용
 #    - repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
 #      targetRevision: HEAD
 #      path: manifests
