@@ -9,8 +9,8 @@ spec:
     - git:
         repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
         revision: HEAD
-        directories:
-          - path: kong-ingress-chart/values-dev/*
+        files:
+          - path: kong-ingress-chart/values-dev/*.yaml
   template:
     metadata:
       # values-dev/community-service.yaml → ingress-community-service
