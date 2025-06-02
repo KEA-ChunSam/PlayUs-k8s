@@ -5,16 +5,10 @@ services:
       name: user-service
       port: 80
 
-# 경로 설정 (rewrite는 Ingress level에서 처리)
-paths:
-  - path: /user/user
-  - path: /user/health
-  - path: /user/actuator/health
+    paths:
+      - path: /user/user
+      - path: /user/health
+      - path: /user/actuator/health
 
-pathType: ImplementationSpecific
-
-stripPath: true
-
-annotations:
-  kubernetes.io/ingress.class: kong
-  
+    pathType: ImplementationSpecific
+    stripPath: true

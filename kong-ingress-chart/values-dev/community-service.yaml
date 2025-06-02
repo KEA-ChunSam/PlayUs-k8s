@@ -5,12 +5,11 @@ services:
       name: community-service
       port: 80
 
-paths:
-  - path: /community/post
-  - path: /community/comment
-  - path: /community/live-match-diary
-  - path: /community/health
+    paths:
+      - path: /community/post
+      - path: /community/comment
+      - path: /community/live-match-diary
+      - path: /community/health
 
-pathType: ImplementationSpecific
-
-stripPath: true
+    pathType: ImplementationSpecific
+    stripPath: true

@@ -5,11 +5,10 @@ services:
       name: match-service
       port: 80
 
-# 경로 설정 (rewrite는 Ingress level에서 처리)
-paths:
-  - path: /match/match
-  - path: /match/health
+    paths:
+      - path: /match/match
+      - path: /match/health
 
-pathType: ImplementationSpecific
+    pathType: ImplementationSpecific
 
-stripPath: true
+    stripPath: true

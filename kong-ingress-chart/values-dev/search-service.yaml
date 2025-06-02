@@ -5,16 +5,10 @@ services:
       name: search-service
       port: 80
 
-# 경로 설정 (rewrite는 Ingress level에서 처리)
-paths:
-  - path: /search/search
-  - path: /search/health
-  - path: /search/actuator/health
+    paths:
+      - path: /search/search
+      - path: /search/health
 
-pathType: ImplementationSpecific
+    pathType: ImplementationSpecific
 
-stripPath: true
-
-annotations:
-  kubernetes.io/ingress.class: kong
-  
+    stripPath: true
