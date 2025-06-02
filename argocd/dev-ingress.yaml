@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: dev-ingress
   namespace: argocd
+  labels:
+    environment: dev
 spec:
   project: default
   source:
@@ -11,9 +13,8 @@ spec:
     path: 'kong-ingress-chart'
     helm:
       releaseName: 'dev-ingress'
-      # 모든 values-dev 파일들을 순서대로 적용
       valueFiles:
-        - 'values.yaml'  # 기본 values
+        - 'values.yaml'
         - 'values-dev/community-service.yaml'
         - 'values-dev/match-service.yaml'
         - 'values-dev/search-service.yaml'
@@ -21,10 +22,16 @@ spec:
         - 'values-dev/user-service.yaml'
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: 'ingress-system'  # 모든 ingress를 하나의 네임스페이스에서 관리
+  # namespace는 각 ingress의 metadata.namespace에서 개별 설정
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true  # 대용량 리소스 처리 개선
+  ignoreDifferences:
+    - group: networking.k8s.io
+      kind: Ingress
+      jsonPointers:
+        - /status
