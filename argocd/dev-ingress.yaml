@@ -1,38 +1,30 @@
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
+kind: Application
 metadata:
-  name: dev-ingress-applicationset
+  name: dev-ingress
   namespace: argocd
 spec:
-  generators:
-    # values-dev 디렉토리의 각 파일을 기반으로 애플리케이션 생성
-    - git:
-        repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
-        revision: HEAD
-        files:
-          - path: kong-ingress-chart/values-dev/*.yaml
-  template:
-    metadata:
-      # values-dev/community-service.yaml → ingress-community-service
-      name: 'ingress-{{path.basename}}'
-      namespace: argocd
-    spec: 
-      project: default
-      source:
-        repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
-        targetRevision: HEAD
-        path: 'kong-ingress-chart'
-        helm:
-          releaseName: '{{path.basename}}-ingress'
-          # values-dev 디렉토리의 해당 파일을 사용
-          valueFiles:
-            - 'values-dev/{{path.basename}}.yaml'
-      destination:
-        server: 'https://kubernetes.default.svc'
-        namespace: 'dev-{{path.basename}}'
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
+  project: default
+  source:
+    repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
+    targetRevision: HEAD
+    path: 'kong-ingress-chart'
+    helm:
+      releaseName: 'dev-ingress'
+      # 모든 values-dev 파일들을 순서대로 적용
+      valueFiles:
+        - 'values.yaml'  # 기본 values
+        - 'values-dev/community-service.yaml'
+        - 'values-dev/match-service.yaml'
+        - 'values-dev/search-service.yaml'
+        - 'values-dev/twp-service.yaml'
+        - 'values-dev/user-service.yaml'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: 'ingress-system'  # 모든 ingress를 하나의 네임스페이스에서 관리
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

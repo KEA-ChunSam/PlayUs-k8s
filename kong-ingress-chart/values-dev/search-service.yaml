@@ -1,8 +1,9 @@
-namespace: dev-search-service
-
-service:
-  name: search-service
-  port: 80
+services:
+  search-service:
+    namespace: dev-search-service
+    service:
+      name: search-service
+      port: 80
 
 # 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:

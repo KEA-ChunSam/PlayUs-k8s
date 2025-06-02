@@ -1,8 +1,9 @@
-namespace: dev-match-service
-
-service:
-  name: match-service
-  port: 80
+services:
+  match-service:
+    namespace: dev-match-service
+    service:
+      name: match-service
+      port: 80
 
 # 경로 설정 (rewrite는 Ingress level에서 처리)
 paths:
@@ -12,6 +13,3 @@ paths:
 pathType: ImplementationSpecific
 
 stripPath: true
-
-annotations:
-  kubernetes.io/ingress.class: kong
