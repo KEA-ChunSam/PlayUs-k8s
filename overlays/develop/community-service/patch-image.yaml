@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
         - name: community-service
-          image: yukyung0/playus-community-service:25-bbd51d3
+          image: yukyung0/playus-community-service:26-4fd1a08
