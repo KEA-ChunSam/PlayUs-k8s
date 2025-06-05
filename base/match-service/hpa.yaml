@@ -7,18 +7,18 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: match-service
-  minReplicas: 1        # 최소 pod 개수
-  maxReplicas: 3        # 최대 pod 개수
+  minReplicas: 2        # 최소 pod 개수
+  maxReplicas: 4        # 최대 pod 개수
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 70
+          averageUtilization: 60
     - type: Resource
       resource:
           name: memory
           target:
             type: Utilization
-            averageUtilization: 80
+            averageUtilization: 70

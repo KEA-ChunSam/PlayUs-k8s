@@ -4,6 +4,11 @@ metadata:
   name: match-service
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: match-service
@@ -18,10 +23,42 @@ spec:
           ports:
             - containerPort: 8080
               name: http
+          env:
+            - name: JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: match-service-config
+                  key: JVM_OPTS
+            - name: JAVA_TOOL_OPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: match-service-config
+                  key: JVM_OPTS
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sleep", "15"]
           resources:
-            requests: # 최소 보장 리소스
-              cpu: "200m"
-              memory: "256Mi"
-            limits: # 최대 허용 리소스
-              cpu: "400m"
+            requests:
+              cpu: "300m"
               memory: "512Mi"
+            limits:
+              cpu: "600m"
+              memory: "1Gi"
+      terminationGracePeriodSeconds: 45

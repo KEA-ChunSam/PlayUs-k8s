@@ -1,0 +1,9 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: user-service-pdb
+spec:
+  minAvailable: 1              # 최소 1개 파드는 항상 실행 상태 유지
+  selector:
+    matchLabels:
+      app: user-service
