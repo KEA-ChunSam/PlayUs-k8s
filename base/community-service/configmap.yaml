@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: community-service-config
+  labels:
+    app: community-service
+data:
+  # JVM 설정
+  JVM_OPTS: "-Xms512m -Xmx768m -XX:+UseContainerSupport -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
