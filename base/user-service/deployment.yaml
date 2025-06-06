@@ -39,7 +39,7 @@ spec:
               path: /actuator/health/readiness
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 120  # 더 길게 설정
+            initialDelaySeconds: 180
             periodSeconds: 10
             timeoutSeconds: 10        # 타임아웃 늘림
             failureThreshold: 6
@@ -49,7 +49,7 @@ spec:
               path: /actuator/health/liveness
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 150  # readiness보다 더 길게
+            initialDelaySeconds: 200
             periodSeconds: 30
             timeoutSeconds: 10        # 타임아웃 늘림
             failureThreshold: 3
@@ -59,10 +59,10 @@ spec:
               path: /actuator/health
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 30
+            initialDelaySeconds: 90
             periodSeconds: 10
             timeoutSeconds: 10
-            failureThreshold: 18      # 최대 3분 (30 + 10*18 = 210초)
+            failureThreshold: 30      # 최대 5분
             successThreshold: 1
           lifecycle:
             preStop:

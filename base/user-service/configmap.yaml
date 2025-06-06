@@ -6,4 +6,5 @@ metadata:
     app: user-service
 data:
   # JVM 설정
-  JVM_OPTS: "-Xms512m -Xmx768m -XX:+UseContainerSupport -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+  #JVM_OPTS: "-Xms512m -Xmx768m -XX:+UseContainerSupport -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+  JVM_OPTS: "-Xms768m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseContainerSupport -Djava.security.egd=file:/dev/./urandom"
