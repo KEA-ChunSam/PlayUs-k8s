@@ -59,10 +59,10 @@ spec:
               path: /actuator/health
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 90
-            periodSeconds: 10
+            initialDelaySeconds: 180
+            periodSeconds: 15
             timeoutSeconds: 10
-            failureThreshold: 30      # 최대 5분
+            failureThreshold: 40      # 최대 10분
             successThreshold: 1
           lifecycle:
             preStop:
