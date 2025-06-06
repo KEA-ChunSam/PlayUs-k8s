@@ -38,18 +38,32 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 90
+              scheme: HTTP
+            initialDelaySeconds: 120  # 더 길게 설정
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10        # 타임아웃 늘림
             failureThreshold: 6
+            successThreshold: 1
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 120
+              scheme: HTTP
+            initialDelaySeconds: 150  # readiness보다 더 길게
             periodSeconds: 30
-            timeoutSeconds: 5
+            timeoutSeconds: 10        # 타임아웃 늘림
             failureThreshold: 3
+          # 시작 프로브 추가
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 18      # 최대 3분 (30 + 10*18 = 210초)
+            successThreshold: 1
           lifecycle:
             preStop:
               exec:
