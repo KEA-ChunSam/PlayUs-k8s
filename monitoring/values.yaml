@@ -190,8 +190,7 @@ alloy:
           "dev-user-service",
           "dev-community-service",
           "dev-search-service",
-          "dev-twp-service",
-          "dev-match-service"
+          "dev-twp-service"
         ]
         }
 
