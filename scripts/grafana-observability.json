@@ -1,0 +1,97 @@
+{
+  "dashboard": {
+    "title": "PlayUs 완전한 관측성 대시보드",
+    "tags": ["playus", "observability", "lgtm"],
+    "panels": [
+      {
+        "title": "🔍 트레이스 검색",
+        "type": "traces",
+        "datasource": "Tempo",
+        "targets": [
+          {
+            "query": "{ service.name=\"user-service\" }",
+            "queryType": "",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "traceToLogsOptions": {
+                "datasourceUid": "loki",
+                "tags": ["traceId", "spanId"],
+                "query": "{namespace=\"default\", pod=~\".*user-service.*\"} |= \"${__trace.traceID}\""
+              },
+              "traceToMetricsOptions": {
+                "datasourceUid": "mimir",
+                "tags": [
+                  {"key": "service.name", "value": "service"},
+                  {"key": "span.name", "value": "operation"}
+                ],
+                "queries": [
+                  {
+                    "name": "Request Rate",
+                    "query": "rate(http_requests_total{service=\"${__trace.tags.service.name}\"}[5m])"
+                  },
+                  {
+                    "name": "Error Rate",
+                    "query": "rate(http_requests_total{service=\"${__trace.tags.service.name}\",status=~\"5..\"}[5m])"
+                  },
+                  {
+                    "name": "Duration",
+                    "query": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{service=\"${__trace.tags.service.name}\"}[5m]))"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+
+      {
+        "title": "📊 메트릭 - HTTP 요청 성공률",
+        "type": "timeseries",
+        "datasource": "Mimir",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=~\".*user-service.*\", status=~\"2..\"}[5m]) / rate(http_requests_total{job=~\".*user-service.*\"}[5m]) * 100",
+            "legendFormat": "Success Rate %",
+            "refId": "A"
+          }
+        ]
+      },
+
+      {
+        "title": "📝 로그 - 트레이스 연결",
+        "type": "logs",
+        "datasource": "Loki",
+        "targets": [
+          {
+            "expr": "{namespace=\"default\", pod=~\".*user-service.*\"} | json | trace_id != \"\" | line_format \"{{.timestamp}} [{{.trace_id}}] {{.level}} {{.message}}\"",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showTime": true,
+          "showLabels": false,
+          "showCommonLabels": true,
+          "wrapLogMessage": false,
+          "enableLogDetails": true
+        }
+      },
+
+      {
+        "title": "🗺️ 서비스 맵",
+        "type": "nodeGraph",
+        "datasource": "Tempo",
+        "targets": [
+          {
+            "query": "{ service.name=~\".*service\" }",
+            "queryType": "serviceMap",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  }
+}

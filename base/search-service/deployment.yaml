@@ -25,3 +25,8 @@ spec:
             limits:
               cpu: "600m"
               memory: "1Gi"
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://playus-monitoring-alloy.dev-monitoring.svc.cluster.local:4318"
+            - name: OTEL_SERVICE_NAME
+              value: "search-service"
