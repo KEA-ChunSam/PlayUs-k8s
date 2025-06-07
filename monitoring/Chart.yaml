@@ -6,27 +6,27 @@ appVersion: "1.0.0"
 
 # LGTM Stack 의존성
 dependencies:
-  # Loki
+  # L - Loki (로그)
   - name: loki
     version: "6.21.0"
     repository: "https://grafana.github.io/helm-charts"
     condition: loki.enabled
 
-  # Grafana
+  # G - Grafana
   - name: grafana
     version: "8.8.2"
     repository: "https://grafana.github.io/helm-charts"
     condition: grafana.enabled
 
-  # Tempo
+  # T - Tempo (트레이스)
   - name: tempo
-    version: "1.17.1"
+    version: "1.9.0"
     repository: "https://grafana.github.io/helm-charts"
     condition: tempo.enabled
 
-  # Mimir
+  # M - Mimir (메트릭)
   - name: mimir-distributed
-    version: "5.7.0"
+    version: "5.4.0"
     repository: "https://grafana.github.io/helm-charts"
     condition: mimir.enabled
     alias: mimir
@@ -36,10 +36,6 @@ dependencies:
     version: "0.9.2"
     repository: "https://grafana.github.io/helm-charts"
     condition: alloy.enabled
-
-maintainers:
-  - name: PlayUs Team
-    email: team@playus.com
 
 keywords:
   - observability
