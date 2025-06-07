@@ -25,8 +25,6 @@ loki:
       limits:
         cpu: 500m
         memory: 1Gi
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-210
 
   read:
     replicas: 0
@@ -119,8 +117,6 @@ tempo:
       limits:
         cpu: 500m
         memory: 1Gi
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-210
 
   tempo:
     storage:
@@ -155,28 +151,6 @@ mimir:
       limits:
         cpu: 1000m
         memory: 2Gi
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-210
-
-  ingester:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-210
-
-  alertmanager:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-210
-
-  compactor:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-210
-
-  ruler:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-210
-
-  store_gateway:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-210
 
   mimir:
     structuredConfig:
