@@ -17,8 +17,8 @@ spec:
             path: overlays/develop/match-service
           - name: dev-twp-service
             path: overlays/develop/twp-service
-          - name: dev-monitoring
-            path: overlays/develop/monitoring
+#          - name: dev-monitoring
+#            path: overlays/develop/monitoring
   template:
     metadata:
       name: '{{name}}'

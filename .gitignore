@@ -30,3 +30,10 @@ kubeconfig
 *.temp
 
 sealed-secrets-public.pem
+
+# Helm 의존성 차트
+charts/
+
+# Helm 임시 파일
+*.tgz
+*.tgz.prov

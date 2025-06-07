@@ -1,0 +1,270 @@
+# =================================================
+# PlayUs 모니터링 개발환경 Values (수정됨)
+# 기본 values.yaml 오버라이드
+# =================================================
+
+# 전역 설정
+global:
+  namespace: dev-monitoring
+  commonLabels:
+    team: playus
+    env: development
+
+# Loki 개발환경 설정
+loki:
+  singleBinary:
+    # 개발환경은 리소스 절약
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 512Mi
+
+    # 작은 볼륨
+    persistence:
+      size: 5Gi
+
+  loki:
+    limits_config:
+      # 개발환경 제한 완화
+      retention_period: 72h  # 3일
+      ingestion_rate_mb: 8
+      ingestion_burst_size_mb: 16
+
+# 🔧 Alloy 개발환경 설정 (문제 수정)
+alloy:
+  # 개발환경 리소스 절약
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+  alloy:
+    configMap:
+      content: |
+        // =================================================
+        // 개발환경용 Alloy 설정 (수정됨)
+        // =================================================
+
+        // 📊 Mimir Write (메트릭) - 추가됨!
+        prometheus.remote_write "mimir" {
+          endpoint {
+            url = "http://playus-monitoring-mimir-distributor.dev-monitoring.svc.cluster.local:8080/api/v1/push"
+          }
+        }
+
+        // 📝 Loki Write (로그)
+        loki.write "loki" {
+          endpoint {
+            url = "http://playus-monitoring-loki.dev-monitoring.svc.cluster.local:3100/loki/api/v1/push"
+          }
+        }
+
+        // 🔍 Tempo Write (트레이스) - 추가됨!
+        otelcol.exporter.otlp "tempo" {
+          client {
+            endpoint = "http://playus-monitoring-tempo.dev-monitoring.svc.cluster.local:4317"
+            tls {
+              insecure = true
+            }
+          }
+        }
+
+        // =================================================
+        // Kubernetes 디스커버리
+        // =================================================
+
+        discovery.kubernetes "pods" {
+          role = "pod"
+        }
+
+        discovery.kubernetes "services" {
+          role = "service"
+        }
+
+        discovery.kubernetes "endpoints" {
+          role = "endpoints"
+        }
+
+        // =================================================
+        // 📊 메트릭 수집 (→ Mimir) - 수정됨!
+        // =================================================
+
+        prometheus.scrape "playus_metrics_dev" {
+          targets = discovery.kubernetes.endpoints.targets
+          forward_to = [prometheus.remote_write.mimir.receiver]  // Mimir로 전송
+        
+          scrape_interval = "15s"  // 개발환경 15초
+          scrape_timeout = "5s"
+          metrics_path = "/actuator/prometheus"
+        
+          clustering {
+            enabled = true
+          }
+        
+          relabel_configs = [
+            {
+              source_labels = ["__meta_kubernetes_service_name"]
+              regex = "(user-service|match-service|community-service|search-service|twp-service)"
+              action = "keep"
+            },
+            {
+              source_labels = ["__meta_kubernetes_namespace"]
+              regex = "(default|playus-dev)"
+              action = "keep"
+            },
+            {
+              source_labels = ["__meta_kubernetes_service_name"]
+              target_label = "service"
+            },
+            {
+              target_label = "env"
+              replacement = "development"
+            }
+          ]
+        }
+
+        // =================================================
+        // 🔍 트레이스 수집 (→ Tempo) - 추가됨!
+        // =================================================
+
+        otelcol.receiver.otlp "playus_traces_dev" {
+          grpc {
+            endpoint = "0.0.0.0:4317"
+          }
+          http {
+            endpoint = "0.0.0.0:4318"
+          }
+        
+          output {
+            traces = [otelcol.exporter.otlp.tempo.input]
+          }
+        }
+
+        // =================================================
+        // 📝 로그 수집 (→ Loki) - 수정됨!
+        // =================================================
+
+        loki.source.kubernetes "app_logs_dev" {
+          targets = discovery.kubernetes.pods.targets
+          forward_to = [loki.write.loki.receiver]  // Loki로 전송
+        
+          clustering {
+            enabled = true
+          }
+        
+          relabel_configs = [
+            {
+              source_labels = ["__meta_kubernetes_pod_label_app"]
+              regex = "(user-service|match-service|community-service|search-service|twp-service)"
+              action = "keep"
+            }
+          ]
+        
+          pipeline_stages = [
+            {
+              cri = {}
+            },
+            {
+              json = {
+                expressions = {
+                  level = "level"
+                  message = "message"
+                  logger = "logger"
+                  trace_id = "traceId"    // 🔗 트레이스 연결
+                  span_id = "spanId"
+                }
+              }
+            },
+            {
+              labels = {
+                level = ""
+                logger = ""
+                env = "development"
+                trace_id = ""
+                span_id = ""
+              }
+            }
+            // 개발환경에서는 모든 로그 수집 (INFO 포함)
+          ]
+        }
+
+        // =================================================
+        // Alloy 자체 모니터링
+        // =================================================
+
+        prometheus.exporter.self "alloy_metrics" {}
+        
+        prometheus.scrape "alloy_self" {
+          targets = prometheus.exporter.self.alloy_metrics.targets
+          forward_to = [prometheus.remote_write.mimir.receiver]  // Mimir로 전송
+          scrape_interval = "30s"
+        }
+
+# Grafana 개발환경 설정
+grafana:
+  # 개발환경 리소스 절약
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+  # 개발환경 관리자 계정
+  adminPassword: "dev-admin-2024!"
+
+  # 개발환경 설정
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/"
+
+    # 개발환경에서는 익명 접근 허용
+    auth.anonymous:
+      enabled: true
+      org_role: Editor  # 개발환경에서는 편집 권한
+
+    log:
+      mode: console
+      level: debug  # 개발환경 디버그 로그
+
+  # 개발환경 볼륨
+  persistence:
+    size: 1Gi
+
+  # 개발환경 변수
+  env:
+    GF_EXPLORE_ENABLED: true
+    GF_ALERTING_ENABLED: false  # 개발환경 알림 비활성화
+    GF_FEATURE_TOGGLES_ENABLE: "tempoSearch,tempoBackendSearch"
+
+# 🆕 개발환경에서 리소스 절약을 위한 추가 설정
+tempo:
+  singleBinary:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 512Mi
+    persistence:
+      size: 5Gi
+
+mimir:
+  singleBinary:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+    persistence:
+      size: 10Gi

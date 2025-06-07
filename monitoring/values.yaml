@@ -1,0 +1,537 @@
+# LGTM 스택 Values
+
+global:
+  namespace: dev-monitoring
+  commonLabels:
+    team: playus
+    env: development
+
+# Loki
+loki:
+  enabled: true
+
+  deploymentMode: SingleBinary
+
+  singleBinary:
+    replicas: 1
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: ""
+
+  loki:
+    auth_enabled: false
+
+    server:
+      http_listen_port: 3100
+      log_level: info
+
+    common:
+      storage:
+        filesystem:
+          chunks_directory: /var/loki/chunks
+          rules_directory: /var/loki/rules
+      replication_factor: 1
+      ring:
+        kvstore:
+          store: inmemory
+
+    schema_config:
+      configs:
+        - from: 2024-01-01
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
+
+    limits_config:
+      retention_period: 168h
+      ingestion_rate_mb: 16
+      ingestion_burst_size_mb: 32
+      max_streams_per_user: 10000
+
+    compactor:
+      working_directory: /var/loki/compactor
+      retention_enabled: true
+
+# Grafana
+grafana:
+  enabled: true
+
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  adminUser: admin
+  adminPassword: "playus-dev"
+
+  # 데이터소스 구성
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        # 메트릭 (기본)
+        - name: Mimir
+          type: prometheus
+          access: proxy
+          url: http://playus-monitoring-mimir-query-frontend.dev-monitoring.svc.cluster.local:8080/prometheus
+          isDefault: true
+
+        # 로그
+        - name: Loki
+          type: loki
+          access: proxy
+          url: http://playus-monitoring-loki.dev-monitoring.svc.cluster.local:3100
+          isDefault: false
+          jsonData:
+            maxLines: 1000
+
+        # 트레이스
+        - name: Tempo
+          type: tempo
+          access: proxy
+          url: http://playus-monitoring-tempo.dev-monitoring.svc.cluster.local:3100
+          isDefault: false
+          jsonData:
+            tracesToLogsV2:
+              datasourceUid: 'loki'
+              spanStartTimeShift: '-1h'
+              spanEndTimeShift: '1h'
+              tags: ['job', 'instance', 'pod', 'namespace']
+              filterByTraceID: false
+              filterBySpanID: false
+              customQuery: true
+              query: 'method="${__span.tags.method}"'
+            tracesToMetrics:
+              datasourceUid: 'mimir'
+              spanStartTimeShift: '-1h'
+              spanEndTimeShift: '1h'
+              tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+              queries:
+                - name: 'Sample query'
+                  query: 'sum(rate(traces_spanmetrics_latency_bucket{$__tags}[5m]))'
+            serviceMap:
+              datasourceUid: 'mimir'
+            nodeGraph:
+              enabled: true
+
+  # 대시보드 프로바이더
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'playus-dashboards'
+          orgId: 1
+          folder: 'PlayUs'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/playus
+
+  # 기본 대시보드
+  dashboards:
+    playus:
+      # Kubernetes 클러스터
+      kubernetes-cluster:
+        gnetId: 7249
+        revision: 1
+        datasource: Mimir
+
+      # Spring Boot 앱
+      spring-boot:
+        gnetId: 12900
+        revision: 1
+        datasource: Mimir
+
+      # Loki 로그
+      loki-logs:
+        gnetId: 13639
+        revision: 2
+        datasource: Loki
+
+      # Tempo 트레이스
+      tempo-traces:
+        gnetId: 16761
+        revision: 1
+        datasource: Tempo
+
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/"
+
+    auth.anonymous:
+      enabled: true
+      org_role: Editor
+
+    feature_toggles:
+      enable: "tempoSearch,tempoBackendSearch,tempoServiceGraph"
+
+    log:
+      mode: console
+      level: info
+
+  plugins:
+    - grafana-clock-panel
+    - grafana-worldmap-panel
+
+  persistence:
+    enabled: true
+    size: 2Gi
+
+# Tempo
+tempo:
+  enabled: true
+
+  # SingleBinary 모드 (개발환경용)
+  tempo:
+    repository: grafana/tempo
+    tag: "2.7.0"
+
+    # 스토리지 설정
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /var/tempo/traces
+
+    # 수집 프로토콜 설정
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      jaeger:
+        protocols:
+          thrift_http:
+            endpoint: 0.0.0.0:14268
+          grpc:
+            endpoint: 0.0.0.0:14250
+      zipkin:
+        endpoint: 0.0.0.0:9411
+
+    # 메트릭 생성 활성화
+    metrics_generator:
+      registry:
+        external_labels:
+          source: tempo
+          cluster: dev-monitoring
+      storage:
+        path: /var/tempo/generator/wal
+        remote_write:
+          - url: http://playus-monitoring-mimir-distributor.dev-monitoring.svc.cluster.local:8080/api/v1/push
+            send_exemplars: true
+
+  # 단일 바이너리 배포
+  singleBinary:
+    replicas: 1
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+    persistence:
+      enabled: true
+      size: 10Gi
+
+  service:
+    type: ClusterIP
+
+# Mimir
+mimir:
+  enabled: true
+
+  # 단순 구성을 위한 SingleBinary 모드
+  deploymentMode: SingleBinary
+
+  singleBinary:
+    replicas: 1
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+    persistence:
+      enabled: true
+      size: 20Gi
+
+  # Mimir 설정
+  mimir:
+    structuredConfig:
+      # 멀티테넌시 비활성화
+      multitenancy_enabled: false
+
+      # 스토리지 설정
+      blocks_storage:
+        backend: filesystem
+        filesystem:
+          dir: /data/blocks
+
+      # 제한 설정
+      limits:
+        ingestion_rate: 20000
+        ingestion_burst_size: 40000
+        max_series_per_metric: 50000
+        max_series_per_query: 100000
+
+      # 압축 설정
+      compactor:
+        data_dir: /data/compactor
+        sharding_ring:
+          kvstore:
+            store: inmemory
+
+# =================================================
+# Alloy
+# =================================================
+alloy:
+  enabled: true
+
+  replicaCount: 1
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  serviceAccount:
+    create: true
+
+  rbac:
+    create: true
+
+  alloy:
+    configMap:
+      create: true
+      content: |
+        // Alloy 설정
+
+        // Mimir Write (메트릭)
+        prometheus.remote_write "mimir" {
+          endpoint {
+            url = "http://playus-monitoring-mimir-distributor.dev-monitoring.svc.cluster.local:8080/api/v1/push"
+          }
+        }
+
+        // Loki Write (로그)
+        loki.write "loki" {
+          endpoint {
+            url = "http://playus-monitoring-loki.dev-monitoring.svc.cluster.local:3100/loki/api/v1/push"
+          }
+        }
+
+        // Tempo Write (트레이스)
+        otelcol.exporter.otlp "tempo" {
+          client {
+            endpoint = "http://playus-monitoring-tempo.dev-monitoring.svc.cluster.local:4317"
+            tls {
+              insecure = true
+            }
+          }
+        }
+
+        // =================================================
+        // Kubernetes 디스커버리
+        // =================================================
+
+        discovery.kubernetes "pods" {
+          role = "pod"
+        }
+
+        discovery.kubernetes "services" {
+          role = "service"
+        }
+
+        discovery.kubernetes "endpoints" {
+          role = "endpoints"
+        }
+
+        // =================================================
+        // 메트릭 수집 (→ Mimir)
+        // =================================================
+
+        prometheus.scrape "playus_metrics" {
+          targets = discovery.kubernetes.endpoints.targets
+          forward_to = [prometheus.remote_write.mimir.receiver]
+        
+          scrape_interval = "30s"
+          scrape_timeout = "10s"
+          metrics_path = "/actuator/prometheus"
+        
+          clustering {
+            enabled = true
+          }
+        
+          relabel_configs = [
+            {
+              source_labels = ["__meta_kubernetes_service_name"]
+              regex = "(user-service|match-service|community-service|search-service|twp-service)"
+              action = "keep"
+            },
+            {
+              source_labels = ["__meta_kubernetes_namespace"]
+              regex = "(default|playus-dev)"
+              action = "keep"
+            },
+            {
+              source_labels = ["__meta_kubernetes_service_name"]
+              target_label = "service"
+            },
+            {
+              source_labels = ["__meta_kubernetes_namespace"]
+              target_label = "namespace"
+            },
+            {
+              source_labels = ["__meta_kubernetes_pod_name"]
+              target_label = "pod"
+            }
+          ]
+        }
+
+        // =================================================
+        // 트레이스 수집 (→ Tempo)
+        // =================================================
+
+        // OTLP 수신기 (OpenTelemetry)
+        otelcol.receiver.otlp "playus_traces" {
+          grpc {
+            endpoint = "0.0.0.0:4317"
+          }
+          http {
+            endpoint = "0.0.0.0:4318"
+          }
+        
+          output {
+            traces = [otelcol.exporter.otlp.tempo.input]
+          }
+        }
+
+        // Jaeger 수신기
+        otelcol.receiver.jaeger "playus_jaeger" {
+          protocols {
+            grpc {
+              endpoint = "0.0.0.0:14250"
+            }
+            thrift_http {
+              endpoint = "0.0.0.0:14268"
+            }
+          }
+        
+          output {
+            traces = [otelcol.exporter.otlp.tempo.input]
+          }
+        }
+
+        // Zipkin 수신기
+        otelcol.receiver.zipkin "playus_zipkin" {
+          endpoint = "0.0.0.0:9411"
+        
+          output {
+            traces = [otelcol.exporter.otlp.tempo.input]
+          }
+        }
+
+        // =================================================
+        // 로그 수집 (→ Loki)
+        // =================================================
+
+        loki.source.kubernetes "playus_logs" {
+          targets = discovery.kubernetes.pods.targets
+          forward_to = [loki.write.loki.receiver]
+        
+          clustering {
+            enabled = true
+          }
+        
+          relabel_configs = [
+            {
+              source_labels = ["__meta_kubernetes_pod_label_app"]
+              regex = "(user-service|match-service|community-service|search-service|twp-service)"
+              action = "keep"
+            }
+          ]
+        
+          pipeline_stages = [
+            {
+              cri = {}
+            },
+            {
+              json = {
+                expressions = {
+                  level = "level"
+                  timestamp = "timestamp"
+                  message = "message"
+                  logger = "logger"
+                  thread = "thread"
+                  trace_id = "traceId"     // 트레이스 ID 추출
+                  span_id = "spanId"       // 스팬 ID 추출
+                }
+              }
+            },
+            {
+              labels = {
+                level = ""
+                logger = ""
+                trace_id = ""
+                span_id = ""
+              }
+            },
+            {
+              // WARN, ERROR만 수집 (INFO 제외로 데이터량 절약)
+              match = {
+                selector = '{level=~"WARN|ERROR|FATAL"}'
+                action = "keep"
+              }
+            }
+          ]
+        }
+
+        // =================================================
+        // Alloy 자체 모니터링
+        // =================================================
+
+        prometheus.exporter.self "alloy_metrics" {}
+
+        prometheus.scrape "alloy_self" {
+          targets = prometheus.exporter.self.alloy_metrics.targets
+          forward_to = [prometheus.remote_write.mimir.receiver]
+          scrape_interval = "30s"
+        }
+
+# =================================================
+# 추가 설정
+# =================================================
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
