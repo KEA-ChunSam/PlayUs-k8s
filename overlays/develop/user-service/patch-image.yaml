@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: yukyung0/playus-user-service:65-e62e0f9
+          image: yukyung0/playus-user-service:66-6b07d89
