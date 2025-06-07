@@ -1,5 +1,5 @@
 # =================================================
-# PlayUs 모니터링 스택 Values (전체 통합)
+# PlayUs 모니터링 스택 Values
 # Loki, Tempo, Mimir, Grafana, Alloy 포함
 # =================================================
 
@@ -7,7 +7,7 @@ global:
   namespace: dev-monitoring
 
 # =================================================
-# L - Loki (로그 저장소) - filesystem 기반
+# L - Loki (로그 저장소) - SingleBinary 전용
 # =================================================
 loki:
   enabled: true
@@ -26,16 +26,18 @@ loki:
       enabled: true
       size: 10Gi
 
-  # 🔧 에러 방지를 위한 명시적 설정
-  simpleScalable:
+  # 🔧 simpleScalable 완전 비활성화
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+  backend:
     replicas: 0
 
   loki:
     auth_enabled: false
-    useTestSchema: false
-    storage:
-      type: filesystem
 
+    # 🔧 간단한 스키마 설정
     schemaConfig:
       configs:
         - from: "2024-01-01"
@@ -173,18 +175,21 @@ alloy:
     configMap:
       create: true
       content: |
+        // Loki Write
         loki.write "default" {
           endpoint {
             url = "http://playus-monitoring-loki:3100/loki/api/v1/push"
           }
         }
 
+        // Mimir Write
         prometheus.remote_write "default" {
           endpoint {
             url = "http://playus-monitoring-mimir-distributor:8080/api/v1/push"
           }
         }
 
+        // Tempo Write
         otelcol.exporter.otlp "default" {
           client {
             endpoint = "http://playus-monitoring-tempo:4317"
@@ -194,10 +199,12 @@ alloy:
           }
         }
 
+        // Kubernetes Discovery
         discovery.kubernetes "pods" {
           role = "pod"
         }
 
+        // 트레이스 수집
         otelcol.receiver.otlp "default" {
           grpc {
             endpoint = "0.0.0.0:4317"
@@ -210,13 +217,14 @@ alloy:
           }
         }
 
+        // 로그 수집
         loki.source.kubernetes "default" {
           targets = discovery.kubernetes.pods.targets
           forward_to = [loki.write.default.receiver]
         }
 
+        // Alloy 자체 모니터링
         prometheus.exporter.self "default" {}
-
         prometheus.scrape "default" {
           targets = prometheus.exporter.self.default.targets
           forward_to = [prometheus.remote_write.default.receiver]
