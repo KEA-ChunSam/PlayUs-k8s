@@ -1,5 +1,5 @@
 # =================================================
-# PlayUs 모니터링 개발환경 Values (수정됨)
+# PlayUs 모니터링 개발환경 Values (최종 수정)
 # 기본 values.yaml 오버라이드
 # =================================================
 
@@ -10,7 +10,7 @@ global:
     team: playus
     env: development
 
-# Loki 개발환경 설정
+# 🔧 Loki 개발환경 설정 (구조 수정)
 loki:
   singleBinary:
     # 개발환경은 리소스 절약
@@ -26,6 +26,7 @@ loki:
     persistence:
       size: 5Gi
 
+  # 🆕 Loki 설정 구조 수정
   loki:
     limits_config:
       # 개발환경 제한 완화
@@ -33,7 +34,7 @@ loki:
       ingestion_rate_mb: 8
       ingestion_burst_size_mb: 16
 
-# 🔧 Alloy 개발환경 설정 (문제 수정)
+# 🔧 Alloy 개발환경 설정 (완전 수정)
 alloy:
   # 개발환경 리소스 절약
   resources:
@@ -48,10 +49,10 @@ alloy:
     configMap:
       content: |
         // =================================================
-        // 개발환경용 Alloy 설정 (수정됨)
+        // 개발환경용 Alloy 설정 (완전 수정)
         // =================================================
 
-        // 📊 Mimir Write (메트릭) - 추가됨!
+        // 📊 Mimir Write (메트릭)
         prometheus.remote_write "mimir" {
           endpoint {
             url = "http://playus-monitoring-mimir-distributor.dev-monitoring.svc.cluster.local:8080/api/v1/push"
@@ -65,7 +66,7 @@ alloy:
           }
         }
 
-        // 🔍 Tempo Write (트레이스) - 추가됨!
+        // 🔍 Tempo Write (트레이스)
         otelcol.exporter.otlp "tempo" {
           client {
             endpoint = "http://playus-monitoring-tempo.dev-monitoring.svc.cluster.local:4317"
@@ -92,12 +93,12 @@ alloy:
         }
 
         // =================================================
-        // 📊 메트릭 수집 (→ Mimir) - 수정됨!
+        // 📊 메트릭 수집 (→ Mimir)
         // =================================================
 
         prometheus.scrape "playus_metrics_dev" {
           targets = discovery.kubernetes.endpoints.targets
-          forward_to = [prometheus.remote_write.mimir.receiver]  // Mimir로 전송
+          forward_to = [prometheus.remote_write.mimir.receiver]
         
           scrape_interval = "15s"  // 개발환경 15초
           scrape_timeout = "5s"
@@ -130,7 +131,7 @@ alloy:
         }
 
         // =================================================
-        // 🔍 트레이스 수집 (→ Tempo) - 추가됨!
+        // 🔍 트레이스 수집 (→ Tempo)
         // =================================================
 
         otelcol.receiver.otlp "playus_traces_dev" {
@@ -147,12 +148,12 @@ alloy:
         }
 
         // =================================================
-        // 📝 로그 수집 (→ Loki) - 수정됨!
+        // 📝 로그 수집 (→ Loki)
         // =================================================
 
         loki.source.kubernetes "app_logs_dev" {
           targets = discovery.kubernetes.pods.targets
-          forward_to = [loki.write.loki.receiver]  // Loki로 전송
+          forward_to = [loki.write.loki.receiver]
         
           clustering {
             enabled = true
@@ -176,7 +177,7 @@ alloy:
                   level = "level"
                   message = "message"
                   logger = "logger"
-                  trace_id = "traceId"    // 🔗 트레이스 연결
+                  trace_id = "traceId"
                   span_id = "spanId"
                 }
               }
@@ -202,7 +203,7 @@ alloy:
         
         prometheus.scrape "alloy_self" {
           targets = prometheus.exporter.self.alloy_metrics.targets
-          forward_to = [prometheus.remote_write.mimir.receiver]  // Mimir로 전송
+          forward_to = [prometheus.remote_write.mimir.receiver]
           scrape_interval = "30s"
         }
 
@@ -242,7 +243,6 @@ grafana:
   env:
     GF_EXPLORE_ENABLED: true
     GF_ALERTING_ENABLED: false  # 개발환경 알림 비활성화
-    GF_FEATURE_TOGGLES_ENABLE: "tempoSearch,tempoBackendSearch"
 
 # 🆕 개발환경에서 리소스 절약을 위한 추가 설정
 tempo:
