@@ -1,24 +1,20 @@
 # =================================================
-# PlayUs 완전한 LGTM 스택 Values (수정됨)
+# PlayUs 모니터링 스택 Values (단순화 버전)
+# Loki Chart 기본값 최대 활용
 # =================================================
 
 global:
   namespace: dev-monitoring
-  commonLabels:
-    team: playus
-    env: development
 
 # =================================================
-# L - Loki (로그 저장소) - 설정 수정!
+# L - Loki (로그 저장소) - 최소 설정
 # =================================================
 loki:
   enabled: true
-
   deploymentMode: SingleBinary
 
   singleBinary:
     replicas: 1
-
     resources:
       requests:
         cpu: 100m
@@ -26,69 +22,29 @@ loki:
       limits:
         cpu: 500m
         memory: 1Gi
-
     persistence:
       enabled: true
       size: 10Gi
-      storageClass: ""
 
-  # 🔧 Loki 설정 완전 수정
+  # 🔧 Loki 설정 - 기본값 활용
   loki:
     auth_enabled: false
 
-    server:
-      http_listen_port: 3100
-      log_level: info
+    # 🆕 기본 스키마 사용
+    useTestSchema: true
 
-    # 🆕 commonConfig 방식으로 변경
-    commonConfig:
-      replication_factor: 1
-      ring:
-        kvstore:
-          store: inmemory
-
-    # 🆕 schemaConfig 수정
-    schemaConfig:
-      configs:
-        - from: 2024-01-01
-          store: tsdb
-          object_store: filesystem
-          schema: v13
-          index:
-            prefix: index_
-            period: 24h
-
-    # 🆕 storage_config 추가
-    storage_config:
-      filesystem:
-        directory: /var/loki/chunks
-
+    # 🆕 간단한 제한 설정만
     limits_config:
       retention_period: 168h
       ingestion_rate_mb: 16
       ingestion_burst_size_mb: 32
       max_streams_per_user: 10000
 
-    compactor:
-      working_directory: /var/loki/compactor
-      retention_enabled: true
-
-  # 다른 컴포넌트 비활성화
-  gateway:
-    enabled: false
-  read:
-    enabled: false
-  write:
-    enabled: false
-  backend:
-    enabled: false
-
 # =================================================
 # G - Grafana (시각화)
 # =================================================
 grafana:
   enabled: true
-
   replicas: 1
 
   resources:
@@ -102,65 +58,37 @@ grafana:
   adminUser: admin
   adminPassword: "playus-dev-2024!"
 
-  # 완전한 데이터소스 구성
+  # 기본 데이터소스 설정
   datasources:
     datasources.yaml:
       apiVersion: 1
       datasources:
-        # 메트릭 (기본)
-        - name: Mimir
-          type: prometheus
-          access: proxy
-          url: http://playus-monitoring-mimir-query-frontend.dev-monitoring.svc.cluster.local:8080/prometheus
-          isDefault: true
-
-        # 로그
         - name: Loki
           type: loki
           access: proxy
-          url: http://playus-monitoring-loki.dev-monitoring.svc.cluster.local:3100
-          isDefault: false
-          jsonData:
-            maxLines: 1000
-
-        # 트레이스
+          url: http://playus-monitoring-loki:3100
+          isDefault: true
         - name: Tempo
           type: tempo
           access: proxy
-          url: http://playus-monitoring-tempo.dev-monitoring.svc.cluster.local:3100
-          isDefault: false
-
-  grafana.ini:
-    server:
-      root_url: "%(protocol)s://%(domain)s:%(http_port)s/"
-
-    auth.anonymous:
-      enabled: true
-      org_role: Editor
-
-    log:
-      mode: console
-      level: info
-
-  plugins:
-    - grafana-clock-panel
-    - grafana-worldmap-panel
+          url: http://playus-monitoring-tempo:3100
+        - name: Mimir
+          type: prometheus
+          access: proxy
+          url: http://playus-monitoring-mimir-query-frontend:8080/prometheus
 
   persistence:
     enabled: true
     size: 2Gi
 
 # =================================================
-# T - Tempo (트레이스 저장소)
+# T - Tempo (트레이스 저장소) - 기본 설정
 # =================================================
 tempo:
   enabled: true
 
-  # 🔧 SingleBinary 모드 설정 수정
   tempo:
-    repository: grafana/tempo
-    tag: "2.6.0"  # 안정 버전으로 변경
-
+    # 🔧 기본 설정 사용
     storage:
       trace:
         backend: local
@@ -175,9 +103,9 @@ tempo:
           http:
             endpoint: 0.0.0.0:4318
 
+  # SingleBinary 모드 설정
   singleBinary:
     replicas: 1
-
     resources:
       requests:
         cpu: 100m
@@ -185,23 +113,19 @@ tempo:
       limits:
         cpu: 500m
         memory: 1Gi
-
     persistence:
       enabled: true
       size: 10Gi
 
 # =================================================
-# M - Mimir (메트릭 저장소)
+# M - Mimir (메트릭 저장소) - 기본 설정
 # =================================================
 mimir:
   enabled: true
-
-  # 🔧 Mimir 설정 단순화
   deploymentMode: SingleBinary
 
   singleBinary:
     replicas: 1
-
     resources:
       requests:
         cpu: 200m
@@ -209,28 +133,20 @@ mimir:
       limits:
         cpu: 1000m
         memory: 2Gi
-
     persistence:
       enabled: true
       size: 20Gi
 
+  # 🔧 기본 설정 사용
   mimir:
     structuredConfig:
       multitenancy_enabled: false
-      blocks_storage:
-        backend: filesystem
-        filesystem:
-          dir: /data/blocks
-      limits:
-        ingestion_rate: 20000
-        ingestion_burst_size: 40000
 
 # =================================================
-# Alloy (통합 수집기)
+# Alloy (통합 수집기) - 단순 설정
 # =================================================
 alloy:
   enabled: true
-
   replicaCount: 1
 
   resources:
@@ -243,7 +159,6 @@ alloy:
 
   serviceAccount:
     create: true
-
   rbac:
     create: true
 
@@ -251,129 +166,59 @@ alloy:
     configMap:
       create: true
       content: |
-        // Mimir Write (메트릭)
-        prometheus.remote_write "mimir" {
+        // 단순 Alloy 설정
+        
+        // Loki Write
+        loki.write "default" {
           endpoint {
-            url = "http://playus-monitoring-mimir-distributor.dev-monitoring.svc.cluster.local:8080/api/v1/push"
+            url = "http://playus-monitoring-loki:3100/loki/api/v1/push"
           }
         }
 
-        // Loki Write (로그)
-        loki.write "loki" {
+        // Mimir Write
+        prometheus.remote_write "default" {
           endpoint {
-            url = "http://playus-monitoring-loki.dev-monitoring.svc.cluster.local:3100/loki/api/v1/push"
+            url = "http://playus-monitoring-mimir-distributor:8080/api/v1/push"
           }
         }
 
-        // Tempo Write (트레이스)
-        otelcol.exporter.otlp "tempo" {
+        // Tempo Write
+        otelcol.exporter.otlp "default" {
           client {
-            endpoint = "http://playus-monitoring-tempo.dev-monitoring.svc.cluster.local:4317"
+            endpoint = "http://playus-monitoring-tempo:4317"
             tls {
               insecure = true
             }
           }
         }
 
-        // Kubernetes 디스커버리
+        // Kubernetes Discovery
         discovery.kubernetes "pods" {
           role = "pod"
         }
 
-        discovery.kubernetes "services" {
-          role = "service"
-        }
-
-        discovery.kubernetes "endpoints" {
-          role = "endpoints"
-        }
-
-        // 메트릭 수집
-        prometheus.scrape "playus_metrics" {
-          targets = discovery.kubernetes.endpoints.targets
-          forward_to = [prometheus.remote_write.mimir.receiver]
-        
-          scrape_interval = "30s"
-          scrape_timeout = "10s"
-          metrics_path = "/actuator/prometheus"
-        
-          clustering {
-            enabled = true
-          }
-        
-          relabel_configs = [
-            {
-              source_labels = ["__meta_kubernetes_service_name"]
-              regex = "(user-service|match-service|community-service|search-service|twp-service)"
-              action = "keep"
-            }
-          ]
-        }
-
         // 트레이스 수집
-        otelcol.receiver.otlp "playus_traces" {
+        otelcol.receiver.otlp "default" {
           grpc {
             endpoint = "0.0.0.0:4317"
           }
           http {
             endpoint = "0.0.0.0:4318"
           }
-        
           output {
-            traces = [otelcol.exporter.otlp.tempo.input]
+            traces = [otelcol.exporter.otlp.default.input]
           }
         }
 
         // 로그 수집
-        loki.source.kubernetes "playus_logs" {
+        loki.source.kubernetes "default" {
           targets = discovery.kubernetes.pods.targets
-          forward_to = [loki.write.loki.receiver]
-        
-          clustering {
-            enabled = true
-          }
-        
-          relabel_configs = [
-            {
-              source_labels = ["__meta_kubernetes_pod_label_app"]
-              regex = "(user-service|match-service|community-service|search-service|twp-service)"
-              action = "keep"
-            }
-          ]
-        
-          pipeline_stages = [
-            {
-              cri = {}
-            },
-            {
-              json = {
-                expressions = {
-                  level = "level"
-                  message = "message"
-                  trace_id = "traceId"
-                  span_id = "spanId"
-                }
-              }
-            },
-            {
-              labels = {
-                level = ""
-                trace_id = ""
-                span_id = ""
-              }
-            }
-          ]
+          forward_to = [loki.write.default.receiver]
         }
 
         // Alloy 자체 모니터링
-        prometheus.exporter.self "alloy_metrics" {}
-
-        prometheus.scrape "alloy_self" {
-          targets = prometheus.exporter.self.alloy_metrics.targets
-          forward_to = [prometheus.remote_write.mimir.receiver]
-          scrape_interval = "30s"
+        prometheus.exporter.self "default" {}
+        prometheus.scrape "default" {
+          targets = prometheus.exporter.self.default.targets
+          forward_to = [prometheus.remote_write.default.receiver]
         }
-
-nodeSelector: {}
-tolerations: []
-affinity: {}
