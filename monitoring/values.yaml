@@ -1,13 +1,13 @@
 # =================================================
-# PlayUs 모니터링 스택 Values (단순화 버전)
-# Loki Chart 기본값 최대 활용
+# PlayUs 모니터링 스택 Values (전체 통합)
+# Loki, Tempo, Mimir, Grafana, Alloy 포함
 # =================================================
 
 global:
   namespace: dev-monitoring
 
 # =================================================
-# L - Loki (로그 저장소) - 최소 설정
+# L - Loki (로그 저장소) - filesystem 기반
 # =================================================
 loki:
   enabled: true
@@ -26,14 +26,23 @@ loki:
       enabled: true
       size: 10Gi
 
-  # 🔧 Loki 설정 - 기본값 활용
   loki:
     auth_enabled: false
+    useTestSchema: false
 
-    # 🆕 기본 스키마 사용
-    useTestSchema: true
+    storage:
+      type: filesystem
 
-    # 🆕 간단한 제한 설정만
+    schemaConfig:
+      configs:
+        - from: "2024-01-01"
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+
     limits_config:
       retention_period: 168h
       ingestion_rate_mb: 16
@@ -47,6 +56,13 @@ grafana:
   enabled: true
   replicas: 1
 
+  adminUser: admin
+  adminPassword: "playus-dev-2024!"
+
+  persistence:
+    enabled: true
+    size: 2Gi
+
   resources:
     requests:
       cpu: 100m
@@ -55,10 +71,6 @@ grafana:
       cpu: 500m
       memory: 512Mi
 
-  adminUser: admin
-  adminPassword: "playus-dev-2024!"
-
-  # 기본 데이터소스 설정
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -77,18 +89,12 @@ grafana:
           access: proxy
           url: http://playus-monitoring-mimir-query-frontend:8080/prometheus
 
-  persistence:
-    enabled: true
-    size: 2Gi
-
 # =================================================
-# T - Tempo (트레이스 저장소) - 기본 설정
+# T - Tempo (트레이스 저장소)
 # =================================================
 tempo:
   enabled: true
-
   tempo:
-    # 🔧 기본 설정 사용
     storage:
       trace:
         backend: local
@@ -103,7 +109,6 @@ tempo:
           http:
             endpoint: 0.0.0.0:4318
 
-  # SingleBinary 모드 설정
   singleBinary:
     replicas: 1
     resources:
@@ -118,7 +123,7 @@ tempo:
       size: 10Gi
 
 # =================================================
-# M - Mimir (메트릭 저장소) - 기본 설정
+# M - Mimir (메트릭 저장소)
 # =================================================
 mimir:
   enabled: true
@@ -137,17 +142,21 @@ mimir:
       enabled: true
       size: 20Gi
 
-  # 🔧 기본 설정 사용
   mimir:
     structuredConfig:
       multitenancy_enabled: false
 
 # =================================================
-# Alloy (통합 수집기) - 단순 설정
+# A - Alloy (수집기) 설정
 # =================================================
 alloy:
   enabled: true
   replicaCount: 1
+
+  serviceAccount:
+    create: true
+  rbac:
+    create: true
 
   resources:
     requests:
@@ -157,32 +166,22 @@ alloy:
       cpu: 500m
       memory: 1Gi
 
-  serviceAccount:
-    create: true
-  rbac:
-    create: true
-
   alloy:
     configMap:
       create: true
       content: |
-        // 단순 Alloy 설정
-        
-        // Loki Write
         loki.write "default" {
           endpoint {
             url = "http://playus-monitoring-loki:3100/loki/api/v1/push"
           }
         }
 
-        // Mimir Write
         prometheus.remote_write "default" {
           endpoint {
             url = "http://playus-monitoring-mimir-distributor:8080/api/v1/push"
           }
         }
 
-        // Tempo Write
         otelcol.exporter.otlp "default" {
           client {
             endpoint = "http://playus-monitoring-tempo:4317"
@@ -192,12 +191,10 @@ alloy:
           }
         }
 
-        // Kubernetes Discovery
         discovery.kubernetes "pods" {
           role = "pod"
         }
 
-        // 트레이스 수집
         otelcol.receiver.otlp "default" {
           grpc {
             endpoint = "0.0.0.0:4317"
@@ -210,14 +207,13 @@ alloy:
           }
         }
 
-        // 로그 수집
         loki.source.kubernetes "default" {
           targets = discovery.kubernetes.pods.targets
           forward_to = [loki.write.default.receiver]
         }
 
-        // Alloy 자체 모니터링
         prometheus.exporter.self "default" {}
+
         prometheus.scrape "default" {
           targets = prometheus.exporter.self.default.targets
           forward_to = [prometheus.remote_write.default.receiver]
