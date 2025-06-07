@@ -11,6 +11,11 @@ spec:
     metadata:
       labels:
         app: twp-service
+      # Prometheus 메트릭 수집을 위한 어노테이션 추가
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       containers:
         - name: twp-service
@@ -27,6 +32,16 @@ spec:
               memory: "1Gi"
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://playus-monitoring-alloy.dev-monitoring.svc.cluster.local:4318"
+              value: "http://playus-monitoring-alloy.dev-monitoring.svc.cluster.local:4317"
             - name: OTEL_SERVICE_NAME
               value: "twp-service"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.name=twp-service,service.version=1.0.0,deployment.environment=dev"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_TRACES_EXPORTER
+              value: "otlp"
+            - name: OTEL_METRICS_EXPORTER
+              value: "none"
+            - name: OTEL_LOGS_EXPORTER
+              value: "none"

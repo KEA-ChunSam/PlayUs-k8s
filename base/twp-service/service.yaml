@@ -4,10 +4,6 @@ metadata:
   name: twp-service
   labels:
     app: twp-service
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
-    prometheus.io/path: "/actuator/prometheus"  # http://<pod-ip>:8080/actuator/prometheus
 spec:
   selector:
     app: twp-service
