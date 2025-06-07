@@ -25,8 +25,9 @@ loki:
       limits:
         cpu: 500m
         memory: 1Gi
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-210
 
-  # ✅ simpleScalable 완전 비활성화
   read:
     replicas: 0
   write:
@@ -37,7 +38,6 @@ loki:
   loki:
     auth_enabled: false
 
-    # ✅ 버킷 이름은 filesystem 모드일 경우 dummy로만 채워도 됨 (필수 필드)
     storage:
       type: filesystem
       bucketNames:
@@ -119,6 +119,8 @@ tempo:
       limits:
         cpu: 500m
         memory: 1Gi
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-210
 
   tempo:
     storage:
@@ -153,6 +155,28 @@ mimir:
       limits:
         cpu: 1000m
         memory: 2Gi
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-210
+
+  ingester:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-210
+
+  alertmanager:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-210
+
+  compactor:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-210
+
+  ruler:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-210
+
+  store_gateway:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-210
 
   mimir:
     structuredConfig:
