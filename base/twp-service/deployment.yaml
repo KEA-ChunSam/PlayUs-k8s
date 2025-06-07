@@ -13,7 +13,7 @@ spec:
         app: twp-service
     spec:
       containers:
-        - name: match-service
+        - name: twp-service
           image: yukyung0/playus-twp-service:latest
           ports:
             - containerPort: 8080

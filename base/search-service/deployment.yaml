@@ -13,7 +13,7 @@ spec:
         app: search-service
     spec:
       containers:
-        - name: match-service
+        - name: search-service
           image: yukyung0/playus-search-service:latest
           ports:
             - containerPort: 8080
