@@ -45,5 +45,5 @@ spec:
               value: "none"
             - name: OTEL_LOGS_EXPORTER
               value: "none"
-            - name: JAVA_TOOL_OPTIONS
-              value: "-javaagent:/app/opentelemetry-javaagent.jar"
+#            - name: JAVA_TOOL_OPTIONS
+#              value: "-javaagent:/app/opentelemetry-javaagent.jar"
