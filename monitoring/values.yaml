@@ -48,10 +48,11 @@ loki:
       type: filesystem
     schemaConfig:
       configs:
+        # ✅ 기존 v11 스키마 유지 (structured metadata 비활성화로 인해 가능)
         - from: "2024-01-01"
-          store: boltdb-shipper
+          store: boltdb-shipper  # ✅ 기존 설정 유지
           object_store: filesystem
-          schema: v11
+          schema: v11            # ✅ 기존 설정 유지
           index:
             prefix: index_
             period: 24h
@@ -60,6 +61,11 @@ loki:
       ingestion_rate_mb: 16
       ingestion_burst_size_mb: 32
       max_streams_per_user: 10000
+      # ✅ structured metadata 비활성화 (v11 스키마 유지 가능)
+      allow_structured_metadata: false
+      # ✅ 추가 설정
+      max_line_size: 256000
+      max_query_parallelism: 16
 
 grafana:
   enabled: true
@@ -76,6 +82,12 @@ grafana:
     limits:
       cpu: 500m
       memory: 512Mi
+
+  # ✅ 환경변수 추가
+  env:
+    GF_FEATURE_TOGGLES_ENABLE: "traceqlEditor"
+    GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
+
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -85,14 +97,30 @@ grafana:
           access: proxy
           url: http://playus-monitoring-loki:3100
           isDefault: true
+          # ✅ 로그-트레이스 연동 설정
+          jsonData:
+            derivedFields:
+              - name: "trace_id"
+                matcherRegex: "\\[([^,]+),[^\\]]*\\]"
+                url: "$${__value.raw}"
+                datasourceUid: tempo
         - name: Tempo
           type: tempo
           access: proxy
           url: http://playus-monitoring-tempo:3100
+          uid: tempo
+          # ✅ 트레이스-로그 연동 설정
+          jsonData:
+            tracesToLogs:
+              datasourceUid: loki
+              filterByTraceID: true
+              filterBySpanID: true
         - name: Mimir
           type: prometheus
           access: proxy
           url: http://playus-monitoring-mimir-query-frontend:8080/prometheus
+          jsonData:
+            exemplars: true
 
 tempo:
   enabled: true
@@ -121,6 +149,14 @@ tempo:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
+    # ✅ 쿼리 설정 추가
+    query_frontend:
+      search:
+        max_duration: 24h
+    # ✅ 압축 설정 추가
+    compactor:
+      compaction:
+        block_retention: 48h
 
 mimir:
   enabled: true
@@ -140,6 +176,13 @@ mimir:
   mimir:
     structuredConfig:
       multitenancy_enabled: false
+      # ✅ 추가 설정
+      server:
+        http_listen_port: 8080
+        grpc_listen_port: 9095
+      limits:
+        ingestion_rate: 100000
+        ingestion_burst_size: 200000
 
 alloy:
   enabled: true
@@ -183,15 +226,9 @@ alloy:
           }
         }
 
-        // ✅ Kubernetes Pod 발견
+        // ✅ Kubernetes Pod 발견 (모든 네임스페이스)
         discovery.kubernetes "pods" {
           role = "pod"
-          namespaces = [
-          "dev-user-service",
-          "dev-community-service",
-          "dev-search-service",
-          "dev-twp-service"
-        ]
         }
 
         // ✅ Pod 메트릭 수집을 위한 relabeling 설정
