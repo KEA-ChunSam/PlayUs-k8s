@@ -18,7 +18,13 @@ loki:
         cpu: 500m
         memory: 1Gi
 
-  # 다른 모드들 명시적으로 비활성화
+  commonConfig:
+    replication_factor: 1
+
+  memberlist:
+    join_members:
+      - playus-monitoring-loki-headless.dev-monitoring.svc.cluster.local
+
   read:
     replicas: 0
   write:
@@ -48,11 +54,10 @@ loki:
       type: filesystem
     schemaConfig:
       configs:
-        # ✅ 기존 v11 스키마 유지 (structured metadata 비활성화로 인해 가능)
         - from: "2024-01-01"
-          store: boltdb-shipper  # ✅ 기존 설정 유지
+          store: boltdb-shipper
           object_store: filesystem
-          schema: v11            # ✅ 기존 설정 유지
+          schema: v11
           index:
             prefix: index_
             period: 24h
@@ -61,9 +66,7 @@ loki:
       ingestion_rate_mb: 16
       ingestion_burst_size_mb: 32
       max_streams_per_user: 10000
-      # ✅ structured metadata 비활성화 (v11 스키마 유지 가능)
       allow_structured_metadata: false
-      # ✅ 추가 설정
       max_line_size: 256000
       max_query_parallelism: 16
 
@@ -82,12 +85,9 @@ grafana:
     limits:
       cpu: 500m
       memory: 512Mi
-
-  # ✅ 환경변수 추가
   env:
     GF_FEATURE_TOGGLES_ENABLE: "traceqlEditor"
     GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
-
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -97,7 +97,6 @@ grafana:
           access: proxy
           url: http://playus-monitoring-loki:3100
           isDefault: true
-          # ✅ 로그-트레이스 연동 설정
           jsonData:
             derivedFields:
               - name: "trace_id"
@@ -109,7 +108,6 @@ grafana:
           access: proxy
           url: http://playus-monitoring-tempo:3100
           uid: tempo
-          # ✅ 트레이스-로그 연동 설정
           jsonData:
             tracesToLogs:
               datasourceUid: loki
@@ -149,11 +147,9 @@ tempo:
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
-    # ✅ 쿼리 설정 추가
     query_frontend:
       search:
         max_duration: 24h
-    # ✅ 압축 설정 추가
     compactor:
       compaction:
         block_retention: 48h
@@ -176,7 +172,6 @@ mimir:
   mimir:
     structuredConfig:
       multitenancy_enabled: false
-      # ✅ 추가 설정
       server:
         http_listen_port: 8080
         grpc_listen_port: 9095
@@ -202,21 +197,18 @@ alloy:
     configMap:
       create: true
       content: |
-        // ✅ Loki 로그 전송
         loki.write "default" {
           endpoint {
             url = "http://playus-monitoring-loki:3100/loki/api/v1/push"
           }
         }
 
-        // ✅ Prometheus 메트릭 전송
         prometheus.remote_write "default" {
           endpoint {
             url = "http://playus-monitoring-mimir-distributor:8080/api/v1/push"
           }
         }
 
-        // ✅ OpenTelemetry 트레이스 전송
         otelcol.exporter.otlp "default" {
           client {
             endpoint = "http://playus-monitoring-tempo:4317"
@@ -226,23 +218,19 @@ alloy:
           }
         }
 
-        // ✅ Kubernetes Pod 발견 (모든 네임스페이스)
         discovery.kubernetes "pods" {
           role = "pod"
         }
 
-        // ✅ Pod 메트릭 수집을 위한 relabeling 설정
         discovery.relabel "pod_metrics" {
           targets = discovery.kubernetes.pods.targets
 
-          // prometheus.io/scrape=true 어노테이션이 있는 Pod만 선택
           rule {
             source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
             action = "keep"
             regex = "true"
           }
 
-          // 메트릭 경로 설정 (기본값: /metrics)
           rule {
             source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
             action = "replace"
@@ -250,7 +238,6 @@ alloy:
             regex = "(.+)"
           }
 
-          // 포트 설정
           rule {
             source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
             action = "replace"
@@ -259,28 +246,24 @@ alloy:
             replacement = "$1:$2"
           }
 
-          // 네임스페이스 라벨 추가
           rule {
             source_labels = ["__meta_kubernetes_namespace"]
             action = "replace"
             target_label = "namespace"
           }
 
-          // Pod 이름 라벨 추가
           rule {
             source_labels = ["__meta_kubernetes_pod_name"]
             action = "replace"
             target_label = "pod"
           }
 
-          // 앱 라벨 추가
           rule {
             source_labels = ["__meta_kubernetes_pod_label_app"]
             action = "replace"
             target_label = "app"
           }
 
-          // Job 라벨 생성 (namespace/app 형태)
           rule {
             source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app"]
             action = "replace"
@@ -291,19 +274,14 @@ alloy:
           }
         }
 
-        // ✅ Pod 메트릭 스크래핑
         prometheus.scrape "pod_metrics" {
           targets = discovery.relabel.pod_metrics.output
           forward_to = [prometheus.remote_write.default.receiver]
-        
           scrape_interval = "30s"
           scrape_timeout = "10s"
-        
-          // 실패한 스크래핑도 기록
           honor_labels = true
         }
 
-        // ✅ OpenTelemetry 트레이스 수신
         otelcol.receiver.otlp "default" {
           grpc {
             endpoint = "0.0.0.0:4317"
@@ -316,13 +294,11 @@ alloy:
           }
         }
 
-        // ✅ Kubernetes 로그 수집
         loki.source.kubernetes "default" {
           targets = discovery.kubernetes.pods.targets
           forward_to = [loki.write.default.receiver]
         }
 
-        // ✅ Alloy 자체 메트릭 수집
         prometheus.exporter.self "default" {}
 
         prometheus.scrape "alloy_self" {
