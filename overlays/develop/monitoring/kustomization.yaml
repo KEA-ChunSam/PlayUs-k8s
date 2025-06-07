@@ -1,13 +1,13 @@
-#apiVersion: kustomize.config.k8s.io/v1beta1
-#kind: Kustomization
-#
-#namespace: dev-monitoring
-#
-#resources:
-#  - ../../../base/monitoring
-#
-#patches:
-#  - path: patch-prometheus-config.yaml
-#  - path: patch-prometheus-rbac.yaml
-#  - path: patch-promtail-config.yaml
-#  - path: patch-rbac.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev-monitoring
+
+resources:
+  - ../../../base/monitoring
+
+patches:
+  - path: patch-prometheus-config.yaml
+  - path: patch-prometheus-rbac.yaml
+  - path: patch-promtail-config.yaml
+  - path: patch-rbac.yaml
