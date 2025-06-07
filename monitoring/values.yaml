@@ -1,14 +1,6 @@
-# =================================================
-# PlayUs 모니터링 스택 Values
-# Loki, Tempo, Mimir, Grafana, Alloy 포함
-# =================================================
-
 global:
   namespace: dev-monitoring
 
-# =================================================
-# L - Loki (로그 저장소) - SingleBinary + filesystem 저장
-# =================================================
 loki:
   enabled: true
   deploymentMode: SingleBinary
@@ -25,6 +17,8 @@ loki:
       limits:
         cpu: 500m
         memory: 1Gi
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-253
 
   read:
     replicas: 0
@@ -35,14 +29,12 @@ loki:
 
   loki:
     auth_enabled: false
-
     storage:
       type: filesystem
       bucketNames:
         chunks: dummy-chunks
         ruler: dummy-ruler
         admin: dummy-admin
-
     schemaConfig:
       configs:
         - from: "2024-01-01"
@@ -52,27 +44,20 @@ loki:
           index:
             prefix: index_
             period: 24h
-
     limits_config:
       retention_period: 168h
       ingestion_rate_mb: 16
       ingestion_burst_size_mb: 32
       max_streams_per_user: 10000
 
-# =================================================
-# G - Grafana (시각화)
-# =================================================
 grafana:
   enabled: true
   replicas: 1
-
   adminUser: admin
   adminPassword: "playus-dev-2024!"
-
   persistence:
     enabled: true
     size: 2Gi
-
   resources:
     requests:
       cpu: 100m
@@ -80,7 +65,8 @@ grafana:
     limits:
       cpu: 500m
       memory: 512Mi
-
+  nodeSelector:
+    kubernetes.io/hostname: host-10-10-17-253
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -99,12 +85,8 @@ grafana:
           access: proxy
           url: http://playus-monitoring-mimir-query-frontend:8080/prometheus
 
-# =================================================
-# T - Tempo (트레이스 저장소)
-# =================================================
 tempo:
   enabled: true
-
   singleBinary:
     replicas: 1
     persistence:
@@ -117,7 +99,8 @@ tempo:
       limits:
         cpu: 500m
         memory: 1Gi
-
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-253
   tempo:
     storage:
       trace:
@@ -132,9 +115,6 @@ tempo:
           http:
             endpoint: 0.0.0.0:4318
 
-# =================================================
-# M - Mimir (메트릭 저장소)
-# =================================================
 mimir:
   enabled: true
   deploymentMode: SingleBinary
@@ -151,23 +131,40 @@ mimir:
       limits:
         cpu: 1000m
         memory: 2Gi
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-253
+
+  ingester:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-253
+
+  alertmanager:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-253
+
+  compactor:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-253
+
+  ruler:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-253
+
+  store_gateway:
+    nodeSelector:
+      kubernetes.io/hostname: host-10-10-17-253
 
   mimir:
     structuredConfig:
       multitenancy_enabled: false
 
-# =================================================
-# A - Alloy (수집기) 설정
-# =================================================
 alloy:
   enabled: true
   replicaCount: 1
-
   serviceAccount:
     create: true
   rbac:
     create: true
-
   resources:
     requests:
       cpu: 100m
@@ -175,7 +172,8 @@ alloy:
     limits:
       cpu: 500m
       memory: 1Gi
-
+  nodeSelector:
+    kubernetes.io/hostname: host-10-10-17-253
   alloy:
     configMap:
       create: true
