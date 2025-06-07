@@ -4,7 +4,6 @@ global:
 loki:
   enabled: true
   deploymentMode: SingleBinary
-
   singleBinary:
     replicas: 1
     persistence:
@@ -17,24 +16,10 @@ loki:
       limits:
         cpu: 500m
         memory: 1Gi
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-253
-
-  read:
-    replicas: 0
-  write:
-    replicas: 0
-  backend:
-    replicas: 0
-
   loki:
     auth_enabled: false
     storage:
       type: filesystem
-      bucketNames:
-        chunks: dummy-chunks
-        ruler: dummy-ruler
-        admin: dummy-admin
     schemaConfig:
       configs:
         - from: "2024-01-01"
@@ -54,7 +39,7 @@ grafana:
   enabled: true
   replicas: 1
   adminUser: admin
-  adminPassword: "playus-dev-2024!"
+  adminPassword: "playus-dev"
   persistence:
     enabled: true
     size: 2Gi
@@ -65,8 +50,6 @@ grafana:
     limits:
       cpu: 500m
       memory: 512Mi
-  nodeSelector:
-    kubernetes.io/hostname: host-10-10-17-253
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -99,8 +82,6 @@ tempo:
       limits:
         cpu: 500m
         memory: 1Gi
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-253
   tempo:
     storage:
       trace:
@@ -118,7 +99,6 @@ tempo:
 mimir:
   enabled: true
   deploymentMode: SingleBinary
-
   singleBinary:
     replicas: 1
     persistence:
@@ -131,29 +111,6 @@ mimir:
       limits:
         cpu: 1000m
         memory: 2Gi
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-253
-
-  ingester:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-253
-
-  alertmanager:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-253
-
-  compactor:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-253
-
-  ruler:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-253
-
-  store_gateway:
-    nodeSelector:
-      kubernetes.io/hostname: host-10-10-17-253
-
   mimir:
     structuredConfig:
       multitenancy_enabled: false
@@ -172,8 +129,6 @@ alloy:
     limits:
       cpu: 500m
       memory: 1Gi
-  nodeSelector:
-    kubernetes.io/hostname: host-10-10-17-253
   alloy:
     configMap:
       create: true
