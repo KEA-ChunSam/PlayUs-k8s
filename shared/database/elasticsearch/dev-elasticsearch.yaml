@@ -12,7 +12,7 @@ apiVersion: v1
 kind: Endpoints
 metadata:
   name: dev-elasticsearch
-  namespace: dev-infra
+  namespace: dev-db
 subsets:
   - addresses:
       - ip: 210.109.80.190
