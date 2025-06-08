@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: match-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: match-service
+          envFrom:
+            - secretRef:
+                name: match-db-secret
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod

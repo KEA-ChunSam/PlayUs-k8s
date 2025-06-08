@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-redis-lock
+  namespace: prod-twp-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prod-redis-lock
+  template:
+    metadata:
+      labels:
+        app: prod-redis-lock
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.2
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+              

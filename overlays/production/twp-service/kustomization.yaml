@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../base/twp-service
+  - sealed-secret.yaml
+  - redis-lock
+
+patches:
+  - path: patch-image.yaml
+  - path: patch-env.yaml
+
+namespace: prod-twp-service
+
+generatorOptions:
+  disableNameSuffixHash: true
