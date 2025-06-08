@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - sealed-secret.yaml
+  - ../../../base/search-service
+  - redis-rank
+
+patches:
+  - path: patch-image.yaml
+  - path: patch-env.yaml
+
+namespace: prod-search-service
+
+generatorOptions:
+  disableNameSuffixHash: true

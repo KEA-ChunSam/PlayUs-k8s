@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: user-service
+          envFrom:
+            - secretRef:
+                name: user-db-secret
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod

@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twp-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: twp-service
+          envFrom:
+            - secretRef:
+                name: twp-db-secret
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod

@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: community-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: community-service
+          image: yukyung0/playus-community-service:41-32ec6d1

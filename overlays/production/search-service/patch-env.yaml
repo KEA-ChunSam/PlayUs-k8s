@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: search-service
+          envFrom:
+            - secretRef:
+                name: search-db-secret
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
