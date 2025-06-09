@@ -11,7 +11,6 @@ spec:
     metadata:
       labels:
         app: user-service
-      # Prometheus 메트릭 수집을 위한 어노테이션 추가
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
@@ -25,11 +24,11 @@ spec:
               name: http
           resources:
             requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
               cpu: "300m"
               memory: "512Mi"
-            limits:
-              cpu: "600m"
-              memory: "1Gi"
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://playus-monitoring-alloy.dev-monitoring.svc.cluster.local:4317"
@@ -45,5 +44,3 @@ spec:
               value: "none"
             - name: OTEL_LOGS_EXPORTER
               value: "none"
-#            - name: JAVA_TOOL_OPTIONS
-#              value: "-javaagent:/app/opentelemetry-javaagent.jar"
