@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: loadtest
+  name: loadtest2
   labels:
-    name: loadtest
+    name: loadtest2
 
 ---
 # k6 테스트 스크립트
@@ -12,7 +12,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: k6-loadtest-script
-  namespace: loadtest
+  namespace: loadtest2
 data:
   load-test.js: |
     import http from 'k6/http';
@@ -198,7 +198,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: k6-loadtest-job
-  namespace: loadtest
+  namespace: loadtest2
   labels:
     app: k6-loadtest
 spec:
