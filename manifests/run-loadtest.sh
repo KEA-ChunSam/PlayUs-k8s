@@ -69,7 +69,7 @@ run_loadtest() {
 
     # 기존 테스트 정리
     log_info "기존 부하 테스트 정리 중..."
-    kubectl delete namespace loadtest --ignore-not-found=true
+    kubectl delete namespace loadtest2 --ignore-not-found=true
     sleep 10
 
     # 새 테스트 배포
@@ -78,7 +78,7 @@ run_loadtest() {
 
     # 네임스페이스 생성 대기
     log_info "네임스페이스 생성 대기 중..."
-    kubectl wait --for=condition=Ready namespace/loadtest --timeout=30s 2>/dev/null || true
+    kubectl wait --for=condition=Ready namespace/loadtest2 --timeout=30s 2>/dev/null || true
 
     # Job 시작 대기
     log_info "Job 생성 대기 중..."
@@ -86,7 +86,7 @@ run_loadtest() {
 
     # Pod 생성 확인
     log_info "Pod 상태 확인 중..."
-    kubectl get pods -n loadtest
+    kubectl get pods -n loadtest2
 
     log_success "부하 테스트가 시작되었습니다!"
 }
@@ -184,10 +184,10 @@ cleanup() {
     read -p "테스트 환경을 정리하시겠습니까? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        kubectl delete namespace loadtest --ignore-not-found=true
+        kubectl delete namespace loadtest2 --ignore-not-found=true
         log_success "정리 완료"
     else
-        log_info "정리를 건너뛰었습니다. 수동으로 정리하려면: kubectl delete namespace loadtest"
+        log_info "정리를 건너뛰었습니다. 수동으로 정리하려면: kubectl delete namespace loadtest2"
     fi
 }
 
@@ -275,3 +275,4 @@ main() {
 
 # 스크립트 실행
 main "$@"
+r
