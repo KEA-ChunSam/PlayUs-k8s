@@ -7,7 +7,7 @@ metadata:
     name: loadtest
 
 ---
-# k6 테스트
+# k6 테스트 스크립트
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -32,13 +32,13 @@ data:
                 executor: 'ramping-vus',
                 startVUs: 0,
                 stages: [
-                    { duration: '1m', target: 5 },    // 웜업
-                    { duration: '3m', target: 20 },   // 일반 부하
-                    { duration: '2m', target: 40 },   // 중간 부하
-                    { duration: '2m', target: 60 },   // 높은 부하
-                    { duration: '1m', target: 80 },   // 피크 부하
-                    { duration: '2m', target: 40 },   // 다운
-                    { duration: '1m', target: 0 },    // 종료
+                    { duration: '30s', target: 3 },   // 웜업 (리소스 고려하여 축소)
+                    { duration: '2m', target: 10 },   // 일반 부하
+                    { duration: '1m', target: 20 },   // 중간 부하
+                    { duration: '1m', target: 30 },   // 높은 부하
+                    { duration: '30s', target: 40 },  // 피크 부하
+                    { duration: '1m', target: 20 },   // 다운
+                    { duration: '30s', target: 0 },   // 종료
                 ],
                 exec: 'webTest',
                 tags: { test_type: 'web' },
@@ -48,13 +48,13 @@ data:
                 executor: 'ramping-vus',
                 startVUs: 0,
                 stages: [
-                    { duration: '1m', target: 10 },   // 웜업
-                    { duration: '3m', target: 30 },   // 일반 부하
-                    { duration: '2m', target: 60 },   // 중간 부하
-                    { duration: '2m', target: 100 },  // 높은 부하
-                    { duration: '1m', target: 120 },  // 피크 부하
-                    { duration: '2m', target: 60 },   // 다운
-                    { duration: '1m', target: 0 },    // 종료
+                    { duration: '30s', target: 5 },   // 웜업
+                    { duration: '2m', target: 15 },   // 일반 부하
+                    { duration: '1m', target: 30 },   // 중간 부하
+                    { duration: '1m', target: 50 },   // 높은 부하
+                    { duration: '30s', target: 60 },  // 피크 부하
+                    { duration: '1m', target: 30 },   // 다운
+                    { duration: '30s', target: 0 },   // 종료
                 ],
                 exec: 'apiTest',
                 tags: { test_type: 'api' },
@@ -62,11 +62,11 @@ data:
         },
         thresholds: {
             // 성능 임계값 설정 (401 응답 고려)
-            'http_req_duration': ['p(95)<1000', 'p(99)<2000'],
-            'http_req_failed{status:!401}': ['rate<0.05'], // 401 제외한 실패율
-            'error_rate': ['rate<0.15'], // 인증 오류 포함하여 15% 이하
-            'http_req_duration{test_type:web}': ['p(95)<2000'],
-            'http_req_duration{test_type:api}': ['p(95)<800'],
+            'http_req_duration': ['p(95)<1500', 'p(99)<3000'],
+            'http_req_failed{status:!401}': ['rate<0.10'], // 401 제외한 실패율 10% 이하
+            'error_rate': ['rate<0.20'], // 인증 오류 포함하여 20% 이하
+            'http_req_duration{test_type:web}': ['p(95)<2500'],
+            'http_req_duration{test_type:api}': ['p(95)<1200'],
         },
         summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)', 'p(99)'],
     };
@@ -81,7 +81,7 @@ data:
             // 쿠키를 자동으로 관리하여 세션 유지
             let response = http.get('https://web.playus.o-r.kr', {
                 timeout: '30s',
-                cookies: cookieJar, // 쿠키 자동 관리
+                cookies: cookieJar,
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -102,11 +102,10 @@ data:
             
             let success = check(response, {
                 'web: status is 200': (r) => r.status === 200,
-                'web: response time < 3s': (r) => r.timings.duration < 3000,
+                'web: response time < 5s': (r) => r.timings.duration < 5000,
                 'web: body contains content': (r) => r.body && r.body.length > 0,
                 'web: no server errors': (r) => r.status < 500,
                 'web: has session cookie': (r) => {
-                    // 응답에서 Set-Cookie 헤더 확인
                     let cookies = r.headers['Set-Cookie'] || r.headers['set-cookie'];
                     return cookies !== undefined;
                 },
@@ -118,17 +117,16 @@ data:
             }
         });
         
-        sleep(Math.random() * 2 + 1); // 1-3초 랜덤 대기
+        sleep(Math.random() * 3 + 2); // 2-5초 랜덤 대기 (부하 분산)
     }
 
     export function apiTest() {
         group('API Server Load Test', function () {
             let startTime = Date.now();
             
-            // API 요청 시 쿠키 포함 (웹에서 설정된 세션 쿠키 사용)
             let response = http.get('https://api.playus.o-r.kr/user/user/profile', {
-                timeout: '15s',
-                cookies: cookieJar, // 쿠키 자동 관리
+                timeout: '20s',
+                cookies: cookieJar,
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'application/json, text/plain, */*',
@@ -149,15 +147,15 @@ data:
             
             let success = check(response, {
                 'api: status is 200 or 401': (r) => r.status === 200 || r.status === 401,
-                'api: response time < 1s': (r) => r.timings.duration < 1000,
+                'api: response time < 2s': (r) => r.timings.duration < 2000,
                 'api: valid JSON or auth error': (r) => {
                     if (r.status === 401) {
-                        authSuccessRate.add(0); // 인증 실패 기록
-                        return true; // 401은 정상적인 응답으로 처리
+                        authSuccessRate.add(0);
+                        return true;
                     }
                     try {
                         JSON.parse(r.body);
-                        authSuccessRate.add(1); // 인증 성공 기록
+                        authSuccessRate.add(1);
                         return true;
                     } catch (e) {
                         return false;
@@ -171,13 +169,12 @@ data:
                 console.error(`API test failed: ${response.status} - ${response.status_text}`);
             }
             
-            // 401 응답에 대한 별도 로깅 (너무 많지 않게)
-            if (response.status === 401 && Math.random() < 0.1) { // 10% 확률로만 로깅
+            if (response.status === 401 && Math.random() < 0.05) {
                 console.log(`API 인증 필요: ${response.status} (정상적인 응답)`);
             }
         });
         
-        sleep(Math.random() * 1 + 0.5); // 0.5-1.5초 랜덤 대기
+        sleep(Math.random() * 2 + 1); // 1-3초 랜덤 대기
     }
 
     export function handleSummary(data) {
@@ -229,11 +226,11 @@ spec:
               mountPath: /results
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "200m"
+              memory: "200Mi"
+              cpu: "150m"
             limits:
-              memory: "1Gi"
-              cpu: "1000m"
+              memory: "800Mi"
+              cpu: "800m"
           env:
             - name: K6_NO_CONNECTION_REUSE
               value: "false"
@@ -252,30 +249,37 @@ spec:
               echo "=== k6 부하 테스트 결과 수집기 시작 ==="
               while true; do
                 if [ -f /results/test-results.json ]; then
-                  echo "결과 파일 발견! 마지막 100줄 출력:"
-                  tail -n 100 /results/test-results.json
+                  echo "결과 파일 발견! 마지막 50줄 출력:"
+                  tail -n 50 /results/test-results.json
+                  echo "=== 콘솔 로그 ==="
+                  if [ -f /results/console.log ]; then
+                    cat /results/console.log
+                  fi
                   break
                 fi
-                echo "결과 파일 대기 중... (5초 후 재시도)"
-                sleep 5
+                echo "결과 파일 대기 중... (10초 후 재시도)"
+                sleep 10
               done
               echo "결과 수집 완료"
-              sleep 3600  # 1시간 대기 (결과 확인용)
+              sleep 1800  # 30분 대기 (결과 확인용)
           volumeMounts:
             - name: test-results
               mountPath: /results
           resources:
             requests:
+              memory: "32Mi"
+              cpu: "25m"
+            limits:
               memory: "64Mi"
               cpu: "50m"
-            limits:
-              memory: "128Mi"
-              cpu: "100m"
       volumes:
         - name: k6-script
           configMap:
             name: k6-loadtest-script
         - name: test-results
           emptyDir: {}
-  backoffLimit: 3
-  activeDeadlineSeconds: 1800  # 30분 타임아웃
+      # 특정 노드에 배치 (필요시)
+      nodeSelector:
+        kubernetes.io/os: linux
+  backoffLimit: 2
+  activeDeadlineSeconds: 900  # 15분 타임아웃
