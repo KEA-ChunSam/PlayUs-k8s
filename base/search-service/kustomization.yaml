@@ -5,5 +5,5 @@ resources:
   - deployment.yaml
   - service.yaml
   - configmap.yaml
-  #- hpa.yaml
+  - hpa.yaml
   - pdb.yaml

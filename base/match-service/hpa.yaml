@@ -7,18 +7,31 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: match-service
-  minReplicas: 2        # 최소 pod 개수
-  maxReplicas: 4        # 최대 pod 개수
+  minReplicas: 2
+  maxReplicas: 4
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 60
+          averageUtilization: 80
     - type: Resource
       resource:
-          name: memory
-          target:
-            type: Utilization
-            averageUtilization: 70
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:  # 스케일링 속도 제한 추가
+    scaleUp:
+      stabilizationWindowSeconds: 300  # 5분간 안정화
+      policies:
+        - type: Percent
+          value: 50          # 한 번에 최대 50%씩만 증가
+          periodSeconds: 60  # 1분마다 평가
+    scaleDown:
+      stabilizationWindowSeconds: 300  # 5분간 안정화
+      policies:
+        - type: Percent
+          value: 25          # 한 번에 최대 25%씩만 감소
+          periodSeconds: 60
