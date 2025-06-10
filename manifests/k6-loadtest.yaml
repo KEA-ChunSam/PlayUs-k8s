@@ -32,13 +32,13 @@ data:
                 executor: 'ramping-vus',
                 startVUs: 0,
                 stages: [
-                    { duration: '30s', target: 3 },   // 웜업 (리소스 고려하여 축소)
-                    { duration: '2m', target: 10 },   // 일반 부하
-                    { duration: '1m', target: 20 },   // 중간 부하
-                    { duration: '1m', target: 30 },   // 높은 부하
-                    { duration: '30s', target: 40 },  // 피크 부하
-                    { duration: '1m', target: 20 },   // 다운
-                    { duration: '30s', target: 0 },   // 종료
+                    { duration: '30s', target: 2 },   // 웜업 (더 축소)
+                    { duration: '1m', target: 5 },    // 일반 부하
+                    { duration: '30s', target: 8 },   // 중간 부하
+                    { duration: '30s', target: 10 },  // 높은 부하
+                    { duration: '20s', target: 12 },  // 피크 부하
+                    { duration: '30s', target: 5 },   // 다운
+                    { duration: '20s', target: 0 },   // 종료
                 ],
                 exec: 'webTest',
                 tags: { test_type: 'web' },
@@ -48,13 +48,13 @@ data:
                 executor: 'ramping-vus',
                 startVUs: 0,
                 stages: [
-                    { duration: '30s', target: 5 },   // 웜업
-                    { duration: '2m', target: 15 },   // 일반 부하
-                    { duration: '1m', target: 30 },   // 중간 부하
-                    { duration: '1m', target: 50 },   // 높은 부하
-                    { duration: '30s', target: 60 },  // 피크 부하
-                    { duration: '1m', target: 30 },   // 다운
-                    { duration: '30s', target: 0 },   // 종료
+                    { duration: '30s', target: 3 },   // 웜업
+                    { duration: '1m', target: 8 },    // 일반 부하
+                    { duration: '30s', target: 12 },  // 중간 부하
+                    { duration: '30s', target: 15 },  // 높은 부하
+                    { duration: '20s', target: 18 },  // 피크 부하
+                    { duration: '30s', target: 8 },   // 다운
+                    { duration: '20s', target: 0 },   // 종료
                 ],
                 exec: 'apiTest',
                 tags: { test_type: 'api' },
@@ -226,11 +226,11 @@ spec:
               mountPath: /results
           resources:
             requests:
-              memory: "200Mi"
-              cpu: "150m"
+              memory: "100Mi"
+              cpu: "100m"
             limits:
-              memory: "800Mi"
-              cpu: "800m"
+              memory: "400Mi"
+              cpu: "400m"
           env:
             - name: K6_NO_CONNECTION_REUSE
               value: "false"
@@ -278,8 +278,12 @@ spec:
             name: k6-loadtest-script
         - name: test-results
           emptyDir: {}
-      # 특정 노드에 배치 (필요시)
+      # 컨트롤플레인에서도 실행 가능하도록 설정
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
       nodeSelector:
         kubernetes.io/os: linux
   backoffLimit: 2
-  activeDeadlineSeconds: 900  # 15분 타임아웃
+  activeDeadlineSeconds: 480  # 8분 타임아웃
