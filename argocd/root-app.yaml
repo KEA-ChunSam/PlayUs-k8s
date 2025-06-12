@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-applications
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/KEA-ChunSam/PlayUs-k8s.git
+    targetRevision: HEAD
+    path: argocd     # 모든 애플리케이션 정의가 있는 디렉토리
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
