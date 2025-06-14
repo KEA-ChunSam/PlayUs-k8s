@@ -9,7 +9,7 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# === 로그 함수들 ===
+# === 로그 함수 ===
 log_header() {
     echo -e "${CYAN}================================================================${NC}"
     echo -e "${CYAN}$1${NC}"
@@ -110,15 +110,13 @@ for service in "${SERVICES[@]}"; do
     else
         log_error "${service} 시크릿 생성 실패"
     fi
-    # 서브쉘을 사용했으므로 자동으로 원래 디렉토리로 돌아감
 done
 
-# 원래 디렉토리로 이동 (안전을 위해)
+# 원래 디렉토리로 이동
 cd "$ORIGINAL_DIR"
 
 log_header "✅ PlayUs 서비스 시크릿 생성 완료"
 
-# 다음 단계 안내
 echo ""
 log_info "📋 다음 단계:"
 echo -e "${PURPLE}  1. 생성된 sealed-secret.yaml 파일들을 Git에 커밋${NC}"

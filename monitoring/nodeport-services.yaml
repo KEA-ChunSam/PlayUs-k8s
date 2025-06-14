@@ -1,6 +1,4 @@
-# =================================================
 # Grafana NodePort
-# =================================================
 
 apiVersion: v1
 kind: Service
@@ -22,6 +20,6 @@ spec:
       nodePort: 30300
 ---
 # 접속 정보:
-# URL: http://bastion-ip:10006
+# URL: http://bastion-ip:10006  (bastion port forwarding)
 # ID: admin
 # PW: playus-dev

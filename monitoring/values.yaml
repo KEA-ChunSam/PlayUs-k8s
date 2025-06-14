@@ -18,15 +18,15 @@ loki:
         cpu: 500m
         memory: 1Gi
 
-  # ✅ 공통 설정에서 replication_factor 강제 설정
+  # 공통 설정에서 replication_factor 강제 설정
   commonConfig:
     replication_factor: 1
 
-  # ✅ memberlist 설정 수정 (SingleBinary용)
+  # memberlist 설정 수정 (SingleBinary용)
   memberlist:
     join_members: []
 
-  # ✅ 모든 다른 컴포넌트 명시적 비활성화
+  # 모든 다른 컴포넌트 명시적 비활성화
   read:
     replicas: 0
   write:
@@ -50,11 +50,11 @@ loki:
   ruler:
     replicas: 0
 
-  # ✅ Loki 설정에서도 직접 명시
+  # Loki 설정에서도 직접 명시
   loki:
     auth_enabled: false
 
-    # ✅ 공통 설정 직접 추가
+    # 공통 설정 직접 추가
     common:
       replication_factor: 1
       path_prefix: /var/loki
@@ -85,7 +85,7 @@ loki:
       max_line_size: 256000
       max_query_parallelism: 16
 
-    # ✅ 추가 설정으로 SingleBinary 강제
+    # 추가 설정으로 SingleBinary 강제
     memberlist:
       join_members: []
 
@@ -100,6 +100,7 @@ loki:
 grafana:
   enabled: true
   replicas: 1
+  # grafana 계정 설정
   adminUser: admin
   adminPassword: "playus-dev"
   persistence:
