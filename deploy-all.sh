@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PlayUs 자동화 배포 스크립트
+# 자동화 배포 스크립트
 # 사용법: ./deploy-all.sh [database-ip] [environment]
 # 예시: ./deploy-all.sh 0.0.0.0 develop
 
@@ -64,7 +64,7 @@ DEPLOY_DATABASES="${DEPLOY_DATABASES:-true}"
 DEPLOY_SERVICES="${DEPLOY_SERVICES:-true}"
 DEPLOY_INGRESS="${DEPLOY_INGRESS:-true}"
 
-log_header "🚀 PlayUs 자동화 배포 시작"
+log_header "🚀 배포 시작"
 log_info "데이터베이스 IP: ${DB_IP}"
 log_info "환경: ${ENVIRONMENT}"
 log_info "프로젝트 루트: ${PROJECT_ROOT}"
@@ -277,7 +277,7 @@ fi
 # === 8. 완료 및 다음 단계 안내 ===
 log_header "✅ 배포 완료!"
 
-log_success "PlayUs 배포가 성공적으로 시작되었습니다!"
+log_success "배포가 성공적으로 시작되었습니다!"
 echo ""
 log_info "📋 다음 단계:"
 
@@ -314,4 +314,4 @@ if [ -n "$KONG_EXTERNAL_IP" ] && [ "$KONG_EXTERNAL_IP" != "대기중" ]; then
     echo -e "${PURPLE}     curl -i http://${KONG_EXTERNAL_IP}/api/community/health${NC}"
 fi
 
-log_header "🎉 PlayUs 클러스터가 준비되었습니다!" 
+log_header "🎉 클러스터가 준비되었습니다!"
