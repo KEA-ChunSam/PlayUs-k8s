@@ -16,6 +16,6 @@ metadata:
   namespace: dev-db
 subsets:
   - addresses:
-      - ip: 210.109.80.190
+      - ip: 0.0.0.0     # 외부 DB IP 주소 설정
     ports:
       - port: 27018
